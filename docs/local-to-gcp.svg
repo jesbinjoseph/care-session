@@ -10,7 +10,7 @@
   </defs>
   <rect width="1400" height="760" rx="18" fill="#020617"/><rect width="1400" height="760" rx="18" fill="url(#grid)"/>
   <text x="48" y="48" class="title">CARE: local Compose → complete GCP architecture</text>
-  <text x="48" y="75" class="sub">Keep application flows; replace platform capabilities one layer at a time.</text>
+  <text x="48" y="75" class="sub">Keep CARE responsibilities; replace platform capabilities one layer at a time.</text>
 
   <rect x="40" y="110" width="390" height="600" rx="16" fill="rgba(15,23,42,.7)" stroke="#22d3ee" stroke-width="2"/>
   <text x="235" y="145" class="head">LOCAL COMPOSE</text>
@@ -30,15 +30,15 @@
 
   <!-- Row 1 -->
   <rect x="75" y="175" width="335" height="80" rx="10" fill="rgba(8,51,68,.55)" stroke="#22d3ee" stroke-width="2"/>
-  <text x="242" y="207" class="name">localhost ports</text><text x="242" y="231" class="detail">Browser → frontend → backend</text>
+  <text x="242" y="207" class="name">localhost access</text><text x="242" y="231" class="detail">Browser reaches frontend and backend</text>
   <rect x="525" y="175" width="350" height="80" rx="10" fill="rgba(6,78,59,.45)" stroke="#34d399" stroke-width="2"/>
-  <text x="700" y="207" class="name">HTTP request flow</text><text x="700" y="231" class="detail">Frontend and API remain separate roles</text>
+  <text x="700" y="207" class="name">Application access</text><text x="700" y="231" class="detail">Frontend and API remain separate roles</text>
   <rect x="990" y="165" width="335" height="100" rx="10" fill="rgba(120,53,15,.35)" stroke="#fbbf24" stroke-width="2"/>
   <text x="1157" y="197" class="name">DNS + HTTPS Load Balancer</text><text x="1157" y="221" class="detail">GKE Gateway + HTTPRoutes</text><text x="1157" y="243" class="detail">Kubernetes Services</text>
 
   <!-- Row 2 -->
   <rect x="75" y="280" width="335" height="80" rx="10" fill="rgba(6,78,59,.45)" stroke="#34d399" stroke-width="2"/>
-  <text x="242" y="312" class="name">backend + worker + beat</text><text x="242" y="336" class="detail">One shared image with plugs</text>
+  <text x="242" y="312" class="name">frontend + backend roles</text><text x="242" y="336" class="detail">Two images; backend shared by API, worker, Beat</text>
   <rect x="525" y="280" width="350" height="80" rx="10" fill="rgba(6,78,59,.45)" stroke="#34d399" stroke-width="2"/>
   <text x="700" y="312" class="name">Same runtime processes</text><text x="700" y="336" class="detail">Scale each role independently</text>
   <rect x="990" y="280" width="335" height="80" rx="10" fill="rgba(6,78,59,.45)" stroke="#34d399" stroke-width="2"/>
@@ -46,11 +46,11 @@
 
   <!-- Row 3 -->
   <rect x="75" y="385" width="335" height="80" rx="10" fill="rgba(76,29,149,.45)" stroke="#a78bfa" stroke-width="2"/>
-  <text x="242" y="417" class="name">PostgreSQL + Silo + Redis</text><text x="242" y="441" class="detail">Local stateful dependencies</text>
+  <text x="242" y="417" class="name">Database + S3 + Cache/Broker</text><text x="242" y="441" class="detail">Local stateful dependencies</text>
   <rect x="525" y="385" width="350" height="80" rx="10" fill="rgba(76,29,149,.45)" stroke="#a78bfa" stroke-width="2"/>
   <text x="700" y="417" class="name">Data and queue contracts</text><text x="700" y="441" class="detail">Endpoints change; responsibilities remain</text>
   <rect x="990" y="375" width="335" height="100" rx="10" fill="rgba(76,29,149,.45)" stroke="#a78bfa" stroke-width="2"/>
-  <text x="1157" y="407" class="name">Private Cloud SQL</text><text x="1157" y="431" class="detail">Cloud Storage buckets</text><text x="1157" y="453" class="detail">Memorystore for Redis</text>
+  <text x="1157" y="407" class="name">Private Cloud SQL</text><text x="1157" y="431" class="detail">GCS buckets</text><text x="1157" y="453" class="detail">Memorystore</text>
 
   <!-- Row 4 -->
   <rect x="75" y="490" width="335" height="80" rx="10" fill="rgba(136,19,55,.4)" stroke="#fb7185" stroke-width="2"/>

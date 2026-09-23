@@ -1,6 +1,6 @@
 # From local Docker Compose to GCP
 
-The clearest teaching method is to keep the application flows unchanged and replace one local platform capability at a time. Participants should recognize the same frontend, backend, worker, Beat, database, cache, storage, and plug relationships in both diagrams.
+The clearest teaching method is to keep the CARE responsibilities unchanged and replace one local platform capability at a time. Participants should recognize the same frontend, backend, worker, Beat, database, cache, storage, and plug roles in both diagrams.
 
 ![Local-to-GCP mapping](local-to-gcp.svg)
 
@@ -30,25 +30,25 @@ GCP changes where components run, how users reach them, how identities are assig
 | `redis` container | Memorystore for Redis over private networking | GCP operates the cache and broker while CARE keeps Redis queue and cache semantics. |
 | `silo` container | Google Cloud Storage buckets | The S3-compatible local teaching dependency becomes durable object storage. |
 | `.env` file | Secret Manager, Kubernetes Secrets, and ConfigMaps | Configuration is separated from images and access is controlled. |
-| Local image build | CI build and Artifact Registry | Build once, scan, pin, approve, and promote the image. |
+| Frontend and backend image builds | CI build and Artifact Registry | Build, scan, pin, approve, and promote both application images. |
 | `localhost` ports | DNS, HTTPS load balancer, GKE Gateway, and HTTPRoutes | Public traffic receives TLS and controlled routing. |
 | `docker compose ps/logs` | `kubectl`, Cloud Logging, and Managed Prometheus | Operations become centralized and multi-replica aware. |
 | Named volumes | Managed durability, backups, versioning, and restore procedures | Production state needs explicit recovery objectives and tests. |
 
 ## Recommended teaching progression
 
-### Step 1 — Prove the local flows
+### Step 1 — Prove the local environment
 
-Participants should be able to trace:
+Participants should be able to verify:
 
 1. Browser request to frontend and backend.
-2. Backend query to PostgreSQL.
-3. Upload from backend to Silo.
-4. Task publication to Redis and execution by a worker.
+2. Backend query to the database.
+3. Upload from backend to S3-compatible storage.
+4. Task publication to the task broker and execution by a worker.
 5. Beat startup initialization and scheduled-task publication.
 6. Plug code inside the shared backend image.
 
-Do not introduce Kubernetes until these flows are understood.
+Do not introduce Kubernetes until these roles are understood.
 
 ### Step 2 — Replace processes with Kubernetes workloads
 
@@ -68,9 +68,9 @@ Then introduce readiness probes, liveness probes, resource requests and limits, 
 Replace one dependency at a time:
 
 ```text
-PostgreSQL container → private Cloud SQL
-Silo                 → Cloud Storage
-local Redis          → Memorystore for Redis
+Local database        → private Cloud SQL
+S3-compatible storage → GCS buckets
+Local cache/broker    → Memorystore
 ```
 
 Discuss private connectivity, credentials, backups, retention, restoration, and failure behavior for each dependency.
@@ -114,7 +114,7 @@ Map local inspection to production operation:
 
 Finish with backup restoration, rollback, failure drills, and named operational ownership.
 
-## Complete GCP reference flow
+## Complete GCP reference architecture
 
 ```text
 Users
@@ -132,7 +132,7 @@ GKE Gateway + HTTPRoutes
                                │           ▲
                                │           │
                                │        Beat Pod
-                               └── Cloud Storage
+                               └── GCS buckets
 
 Supporting controls
   ├── Artifact Registry
@@ -152,7 +152,7 @@ Give each group the local architecture diagram and a blank GCP diagram. Ask them
 4. Assign a cloud identity to each workload that needs GCP access.
 5. Identify where configuration and secrets enter the Pods.
 6. Add health signals, logs, metrics, backups, and restore evidence.
-7. Explain which application flows stayed unchanged.
+7. Explain which application responsibilities stayed unchanged.
 
 The goal is not to memorize GCP products. It is to recognize that production architecture wraps the same CARE runtime with managed networking, identity, durability, scaling, observability, and recovery controls.
 

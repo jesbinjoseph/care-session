@@ -43,9 +43,9 @@ Backend API, workers, and Beat must use the same plug-enabled CARE image.
 
 | CARE dependency | Managed GCP service | Reason |
 |---|---|---|
-| PostgreSQL | Cloud SQL for PostgreSQL over private IP | Automated backups, PITR, maintenance, replicas, and managed durability |
-| Object storage | Google Cloud Storage | Durable patient and facility buckets with IAM, lifecycle policy, and encryption |
-| Redis cache and Celery broker | Memorystore for Redis | Managed availability, patching, monitoring, and persistence options |
+| Database | Cloud SQL over private IP | Automated backups, PITR, maintenance, replicas, and managed durability |
+| S3-compatible object storage | GCS buckets | Durable patient and facility buckets with IAM, lifecycle policy, and encryption |
+| Cache and Celery broker | Memorystore | Managed availability, patching, monitoring, and persistence options |
 | Container images | Artifact Registry | Controlled image storage, scanning, and promotion by digest |
 | Runtime secrets | Secret Manager delivered through Kubernetes Secrets | Centralized secret ownership and rotation |
 | Encryption keys | Cloud KMS | Customer-managed encryption where required |
@@ -58,12 +58,12 @@ Backend API, workers, and Beat must use the same plug-enabled CARE image.
 - GKE worker nodes remain private.
 - Cloud SQL and Memorystore use private addresses.
 - Workload Identity grants Pods narrowly scoped GCP permissions without service-account key files.
-- The backend uses a dedicated Kubernetes service account to reach Cloud Storage and other permitted APIs.
+- The backend uses a dedicated Kubernetes service account to reach GCS buckets and other permitted APIs.
 - Public exposure is limited to the HTTPS load balancer and Gateway routes.
 
 ## Relationship to the current infrastructure repository
 
-The current infrastructure already provides the Gateway/GKE baseline, private Cloud SQL, Cloud Storage, Artifact Registry, KMS, Workload Identity, Managed Prometheus, and Cloud Logging.
+The current infrastructure already provides the Gateway/GKE baseline, private Cloud SQL, GCS buckets, Artifact Registry, KMS, Workload Identity, Managed Prometheus, and Cloud Logging.
 
 The material architectural change in this recommended target is Redis:
 
@@ -78,13 +78,13 @@ Migrating Redis requires updating the broker/cache endpoints, firewall and priva
 
 Keep optional workloads outside the core teaching path:
 
-- Metabase with its own managed PostgreSQL database
-- DICOM services and dedicated Cloud Storage bucket
+- Metabase with its own managed database
+- DICOM services and a dedicated GCS bucket
 - CARE metrics exporter using `PodMonitoring`
 - Cloud Armor policy
 - External wildcard certificate support
 
-Introduce these after participants can trace the core frontend, API, task, database, cache, and storage flows.
+Introduce these after participants understand the core frontend, API, task, database, cache, and storage responsibilities.
 
 ## Production checks
 

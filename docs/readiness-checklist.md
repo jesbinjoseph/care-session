@@ -11,9 +11,9 @@ Use this checklist during the workshop. Record command output or screenshots as 
 - [ ] `.env` was copied from `.env.example`.
 - [ ] Frontend local API configuration was copied into `care_fe`.
 - [ ] `docker compose config` succeeds.
-- [ ] PostgreSQL is healthy.
-- [ ] Redis is healthy.
-- [ ] Silo is healthy.
+- [ ] The database is healthy.
+- [ ] The cache and task broker are healthy.
+- [ ] S3-compatible storage is healthy.
 - [ ] Beat completed migrations and synchronization and is healthy.
 - [ ] Backend health endpoint succeeds.
 - [ ] Frontend returns an HTTP response.

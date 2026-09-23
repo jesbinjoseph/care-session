@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
   <title id="title">CARE local learning architecture</title>
-  <desc id="desc">Browser connects to frontend and backend. Backend, worker and beat share a CARE image with plugs. PostgreSQL, Redis and Silo provide data services. Beat performs startup migrations and synchronization.</desc>
+  <desc id="desc">Browser connects to frontend and backend. Backend, worker and beat share a CARE image with plugs. A database, S3-compatible storage, and a cache and task broker provide data services. Beat performs startup migrations and synchronization.</desc>
   <defs>
     <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
       <path d="M40 0H0V40" fill="none" stroke="#1e293b" stroke-width="1"/>
@@ -22,7 +22,7 @@
   <rect width="1200" height="720" rx="18" fill="#020617"/>
   <rect width="1200" height="720" rx="18" fill="url(#grid)"/>
   <text x="52" y="52" class="title">CARE local learning architecture</text>
-  <text x="52" y="79" class="sub">One Compose network • shared CARE image • local-only data services</text>
+  <text x="52" y="79" class="sub">Frontend image • shared backend image • local-only data services</text>
 
   <!-- Connections rendered behind components -->
   <path class="flow" d="M180 200H280"/>
@@ -56,7 +56,7 @@
 
   <!-- Shared image boundary -->
   <rect x="555" y="120" width="220" height="465" rx="14" fill="rgba(6,78,59,.08)" stroke="#34d399" stroke-width="2" stroke-dasharray="8 6"/>
-  <text x="575" y="147" class="sub" fill="#34d399">SHARED CARE IMAGE</text>
+  <text x="575" y="147" class="sub" fill="#34d399">SHARED BACKEND IMAGE</text>
 
   <!-- Backend -->
   <rect x="575" y="165" width="180" height="90" rx="9" fill="#0f172a"/>
@@ -86,22 +86,22 @@
   <!-- Database -->
   <rect x="930" y="195" width="220" height="100" rx="10" fill="#0f172a"/>
   <rect x="930" y="195" width="220" height="100" rx="10" fill="rgba(76,29,149,.5)" stroke="#a78bfa" stroke-width="2"/>
-  <text x="1040" y="232" class="name">PostgreSQL</text>
+  <text x="1040" y="232" class="name">Database</text>
   <text x="1040" y="259" class="detail">Durable application data</text>
   <text x="1040" y="279" class="detail">named volume</text>
 
-  <!-- Silo -->
+  <!-- S3-compatible storage -->
   <rect x="930" y="315" width="220" height="100" rx="10" fill="#0f172a"/>
   <rect x="930" y="315" width="220" height="100" rx="10" fill="rgba(120,53,15,.4)" stroke="#fbbf24" stroke-width="2"/>
-  <text x="1040" y="352" class="name">Silo</text>
+  <text x="1040" y="352" class="name">S3 Storage</text>
   <text x="1040" y="379" class="detail">Local object storage</text>
   <text x="1040" y="399" class="detail">localhost:9001</text>
 
   <!-- Redis -->
   <rect x="930" y="435" width="220" height="100" rx="10" fill="#0f172a"/>
   <rect x="930" y="435" width="220" height="100" rx="10" fill="rgba(251,146,60,.3)" stroke="#fb923c" stroke-width="2"/>
-  <text x="1040" y="472" class="name">Redis</text>
-  <text x="1040" y="499" class="detail">Cache + Celery broker</text>
+  <text x="1040" y="472" class="name">Cache + Broker</text>
+  <text x="1040" y="499" class="detail">Cache + Celery tasks</text>
   <text x="1040" y="519" class="detail">named volume</text>
 
   <!-- Legend -->

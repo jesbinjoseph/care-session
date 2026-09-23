@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1500" height="900" viewBox="0 0 1500 900" role="img" aria-labelledby="title desc">
   <title id="title">Recommended managed-services architecture for CARE on GCP</title>
-  <desc id="desc">Users reach CARE through Cloud DNS, an external HTTPS load balancer, and GKE Gateway routes. GKE runs the frontend, backend, workers, Beat, and plugs. Managed dependencies are Cloud SQL, Memorystore, Cloud Storage, Secret Manager, KMS, Artifact Registry, Cloud Logging, and Managed Prometheus.</desc>
+  <desc id="desc">Users reach CARE through Cloud DNS, an external HTTPS load balancer, and GKE Gateway routes. GKE runs the frontend, backend, workers, Beat, and plugs. Managed dependencies are Cloud SQL, Memorystore, GCS buckets, Secret Manager, KMS, Artifact Registry, Cloud Logging, and Managed Prometheus.</desc>
   <defs>
     <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1e293b" stroke-width="1"/></pattern>
     <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#94a3b8"/></marker>
@@ -51,16 +51,16 @@
   <rect x="790" y="315" width="220" height="80" rx="10" fill="rgba(6,78,59,.5)" stroke="#34d399" stroke-width="2"/><text x="900" y="347" class="name">Backend Service</text><text x="900" y="372" class="detail">CARE API route</text>
 
   <rect x="500" y="440" width="500" height="230" rx="14" fill="rgba(6,78,59,.08)" stroke="#34d399" stroke-width="2"/>
-  <text x="520" y="465" class="boundary" fill="#34d399">SHARED PLUG-ENABLED CARE IMAGE</text>
+  <text x="520" y="465" class="boundary" fill="#34d399">SHARED PLUG-ENABLED BACKEND IMAGE</text>
   <rect x="535" y="485" width="210" height="82" rx="9" fill="rgba(6,78,59,.5)" stroke="#34d399" stroke-width="2"/><text x="640" y="517" class="name">Backend API Pods</text><text x="640" y="542" class="detail">stateless replicas</text>
   <rect x="790" y="485" width="175" height="82" rx="9" fill="rgba(136,19,55,.4)" stroke="#fb7185" stroke-width="2"/><text x="877" y="517" class="name">CARE Plugs</text><text x="877" y="542" class="detail">built into image</text>
   <rect x="535" y="590" width="210" height="65" rx="9" fill="rgba(251,146,60,.3)" stroke="#fb923c" stroke-width="2"/><text x="640" y="618" class="name">Celery Workers</text><text x="640" y="641" class="detail">independent scaling</text>
   <rect x="790" y="590" width="175" height="65" rx="9" fill="rgba(251,146,60,.3)" stroke="#fb923c" stroke-width="2"/><text x="877" y="618" class="name">Celery Beat</text><text x="877" y="641" class="detail">single replica</text>
 
   <!-- Managed dependencies -->
-  <rect x="1140" y="305" width="255" height="90" rx="10" fill="rgba(76,29,149,.5)" stroke="#a78bfa" stroke-width="2"/><text x="1267" y="338" class="name">Cloud SQL PostgreSQL</text><text x="1267" y="362" class="detail">private IP • backups • PITR</text><text x="1267" y="380" class="detail">HA / replica as required</text>
-  <rect x="1140" y="430" width="255" height="90" rx="10" fill="rgba(251,146,60,.3)" stroke="#fb923c" stroke-width="2"/><text x="1267" y="463" class="name">Memorystore Redis</text><text x="1267" y="487" class="detail">cache + Celery broker</text><text x="1267" y="505" class="detail">private endpoint</text>
-  <rect x="1140" y="560" width="255" height="90" rx="10" fill="rgba(120,53,15,.35)" stroke="#fbbf24" stroke-width="2"/><text x="1267" y="593" class="name">Cloud Storage</text><text x="1267" y="617" class="detail">patient + facility buckets</text><text x="1267" y="635" class="detail">IAM • lifecycle • encryption</text>
+  <rect x="1140" y="305" width="255" height="90" rx="10" fill="rgba(76,29,149,.5)" stroke="#a78bfa" stroke-width="2"/><text x="1267" y="338" class="name">Cloud SQL</text><text x="1267" y="362" class="detail">private IP • backups • PITR</text><text x="1267" y="380" class="detail">HA / replica as required</text>
+  <rect x="1140" y="430" width="255" height="90" rx="10" fill="rgba(251,146,60,.3)" stroke="#fb923c" stroke-width="2"/><text x="1267" y="463" class="name">Memorystore</text><text x="1267" y="487" class="detail">cache + Celery broker</text><text x="1267" y="505" class="detail">private endpoint</text>
+  <rect x="1140" y="560" width="255" height="90" rx="10" fill="rgba(120,53,15,.35)" stroke="#fbbf24" stroke-width="2"/><text x="1267" y="593" class="name">GCS Buckets</text><text x="1267" y="617" class="detail">patient + facility buckets</text><text x="1267" y="635" class="detail">IAM • lifecycle • encryption</text>
 
   <!-- Platform controls -->
   <rect x="60" y="770" width="280" height="90" rx="10" fill="rgba(120,53,15,.35)" stroke="#fbbf24" stroke-width="2"/><text x="200" y="803" class="name">Artifact Registry</text><text x="200" y="827" class="detail">pinned frontend + backend images</text><text x="200" y="845" class="detail">CI promotion by digest</text>

@@ -31,6 +31,15 @@ See [Recommended managed-services GCP architecture](docs/gcp-managed-architectur
 | `silo` | Local S3-compatible object storage | `pgsty/silo` |
 | Plugs | Backend extensions | Installed into the backend image at build time |
 
+## Two CARE application images
+
+The workshop builds two CARE images from the official repositories:
+
+1. **Frontend image:** the `care_fe` Node build reads the `REACT_*` build environment, including `REACT_CARE_API_URL`. It generates static HTML, JavaScript, and CSS. The final image uses Nginx to serve those files.
+2. **Backend image:** the `care` build receives `ADDITIONAL_PLUGS`, downloads the selected plug packages, and installs them into the image. The same image runs the API, worker, and Beat processes.
+
+Changing a frontend build variable requires rebuilding the frontend image. Changing the plug list requires rebuilding the backend image. Database, S3, and cache/broker settings used by the backend remain runtime configuration.
+
 ## Why the backend processes share one image
 
 The API, worker, and Beat scheduler run the same CARE code. Compose changes only the process entry point:

@@ -1,64 +1,175 @@
 # Facilitator guide
 
-## Learning objective
+## Session outcome
 
-Participants should leave able to identify every CARE runtime component, explain the request and task flows, start the local stack, inspect failures, and distinguish the workshop setup from a production platform.
+Participants should leave able to:
 
-## Suggested 60-minute walkthrough
+1. explain the CARE frontend, backend, and dependency roles;
+2. distinguish the two CARE application images;
+3. run and verify the local stack;
+4. verify that the application and its dependencies work;
+5. map the same responsibilities to GCP;
+6. make an evidence-based readiness decision.
+
+The final artifact is one completed readiness checklist per team.
+
+## Teaching sequence
+
+Use this order:
+
+```text
+Understand CARE
+  → Build the two CARE images
+  → Run and verify locally
+  → Map the same system to GCP
+  → Decide readiness
+```
+
+Do not introduce GKE or managed services before participants can explain the local system.
+
+"Local" means a host controlled for development or training. It could be a workstation, VM, or server. CARE can run without Docker, but that requires the operator to install and manage the language runtimes, dependency services, process startup, and ports on the host. This workshop uses Docker for repeatability and isolation.
+
+## Suggested 90-minute workshop
 
 | Time | Activity |
 |---:|---|
-| 0–10 min | Explain the architecture diagram and shared backend image |
-| 10–20 min | Clone repositories and review Compose services |
-| 20–35 min | Build and start the stack; inspect startup order |
-| 35–45 min | Load fixtures and complete a synthetic workflow |
-| 45–52 min | Follow a request, upload, worker task, and scheduled task in logs |
-| 52–57 min | Explain backend plugs and rebuild behavior |
-| 57–60 min | Complete the readiness checklist and teardown |
+| 0–10 min | Start with CARE in a local environment and explain why the workshop uses Docker |
+| 10–20 min | Explain the two CARE images and their build-time configuration |
+| 20–30 min | Prepare the repositories and inspect the Compose roles |
+| 30–45 min | Build and start the stack; inspect startup order |
+| 45–58 min | Verify health and complete a synthetic workflow |
+| 58–68 min | Inspect health, logs, and one prepared failure |
+| 68–78 min | Map local roles to the managed-services GCP architecture |
+| 78–87 min | Review production controls and complete the checklist |
+| 87–90 min | Record go, conditional go, or no-go |
+
+For a 60-minute delivery, prepare a running stack in advance and demonstrate the build command without waiting for a clean build.
+
+## The two CARE images
+
+CARE has two application images:
+
+| Image | Source repository | Build inputs | Runtime responsibility |
+|---|---|---|---|
+| Frontend | `ohcnetwork/care_fe` | Frontend `REACT_*` build variables | Nginx serves the generated static files |
+| Backend | `ohcnetwork/care` | `ADDITIONAL_PLUGS` build argument | API, Celery worker, and Celery Beat |
+
+The local database, S3-compatible storage, and cache/task broker are dependencies. Do not describe them as CARE application images.
+
+### Frontend explanation
+
+The frontend Dockerfile has two stages:
+
+1. Node installs dependencies and runs the frontend build.
+2. The final Nginx stage copies and serves the generated HTML, JavaScript, and CSS.
+
+The build reads values from `care_fe/.env.production.local`. `REACT_CARE_API_URL` must be the URL reachable by the participant's browser. In the workshop it is `http://localhost:9000`; an internal Compose hostname would not work in the browser.
+
+A frontend build-variable change requires a new frontend image.
+
+### Backend explanation
+
+The backend Dockerfile receives `ADDITIONAL_PLUGS` during the image build. The build parses the JSON list, downloads the selected plug packages, and installs them into the image.
+
+API, worker, and Beat run the same backend image with different entry points. They must contain the same plug set. Changing the plug list requires a new backend image.
+
+Do not place secret values in `ADDITIONAL_PLUGS`. Deliver secrets through the runtime secret mechanism.
 
 ## Demonstration sequence
 
 1. Display `docs/architecture.svg`.
-2. Run `docker compose config --services`.
-3. Point out that backend, worker, and Beat share one build definition.
-4. Run `docker compose up -d --build --wait`.
-5. Run `docker compose ps -a` and show that Beat becomes healthy after migrations and synchronization.
-6. Verify frontend and backend endpoints.
-7. Load fixtures and use only synthetic data.
-8. Tail backend and worker logs while completing a workflow.
-9. Show `ADDITIONAL_PLUGS=[]` and explain build-time installation.
-10. Stop with `docker compose down` and explain preserved volumes.
-11. Explain that `docker compose down -v` is destructive.
+2. Ask participants to identify the two CARE images and the supporting dependency roles.
+3. Explain the frontend and backend image builds.
+4. Run `docker compose config --services`.
+5. Run `docker compose up -d --build --wait`.
+6. Run `docker compose ps -a`.
+7. Show that Beat becomes healthy after migrations and synchronization.
+8. Verify frontend, backend, and Django checks.
+9. Load fixtures and use only synthetic data.
+10. Complete one synthetic workflow and inspect the relevant health and log evidence.
+11. Open `docs/local-to-gcp.svg` and map each role to GCP.
+12. Open `docs/gcp-managed-architecture.svg` and identify the GKE workloads and managed dependencies.
+13. Complete `docs/readiness-checklist.md`.
+14. Stop with `docker compose down` and explain that volumes remain.
 
 ## Questions participants should answer
 
-- Which service receives browser API requests?
-- Why do the worker and Beat use the same image as the backend?
-- Which startup operations does Beat perform before scheduling tasks?
-- Which component transports asynchronous tasks?
-- Which data belongs in PostgreSQL and which belongs in object storage?
-- Why are plugs installed during the image build?
-- What evidence shows the stack is healthy?
+- Which image produces the browser application?
+- When is the backend API URL added to the frontend?
+- Why does changing a frontend build variable require a rebuild?
+- Why do API, worker, and Beat use the same backend image?
+- When are backend plugs installed?
+- Which startup operations does Beat perform?
+- Which dependency stores structured records?
+- Which dependency stores files through the S3 API?
+- Which dependency transports asynchronous tasks?
+- What evidence shows the application is healthy?
 - Which controls are still required before production?
+
+## Presenter prompts by section
+
+### Local architecture
+
+Say: "We first care about responsibilities, not products. CARE needs a database, S3-compatible storage, and a cache and task broker."
+
+Ask participants to distinguish CARE application images from supporting dependencies.
+
+### Build
+
+Say: "CARE itself produces two images. The frontend image contains static files served by Nginx. The backend image runs three process roles."
+
+Show the frontend build environment and the backend plug list separately.
+
+### Verification
+
+Ask for evidence, not impressions. A running container does not prove that login, file storage, or background work succeeds.
+
+### GCP transition
+
+Say: "The CARE responsibilities stay the same. GCP changes how those responsibilities are hosted and operated."
+
+Map:
+
+```text
+Local database        → Cloud SQL
+S3-compatible storage → GCS buckets
+Local cache/broker    → Memorystore
+Frontend/backend      → GKE workloads
+Local images          → Artifact Registry
+```
+
+### Readiness decision
+
+Require each team to state its decision, strongest evidence, and largest open risk. Treat an unknown critical gate as no-go until evidence exists.
+
+## Build-time and runtime configuration
+
+Keep this distinction visible throughout the workshop:
+
+| Build-time input | Effect |
+|---|---|
+| Frontend `REACT_*` variables | Baked into the static frontend files |
+| `REACT_CARE_API_URL` | Tells the browser where to reach the backend API |
+| Backend `ADDITIONAL_PLUGS` | Selects and installs plugs into the backend image |
+
+Runtime backend configuration includes database, S3, cache/broker, secrets, and integration endpoints. Runtime secret values must not be embedded in either application image.
+
+## Demo fallback plan
+
+If a clean build is too slow or fails:
+
+1. preserve the participant's error output;
+2. move the pair to a working machine or prebuilt facilitator stack;
+3. continue health checks, application verification, and evidence collection;
+4. return to the build failure during troubleshooting time.
+
+Do not let a slow image download consume the architecture and verification portions of the session.
 
 ## Safety boundaries
 
 - Use only local workshop credentials.
 - Use only synthetic fixture data.
-- Do not connect the stack to production databases, buckets, queues, or APIs.
-- Do not paste real secret values into `.env` or plug configuration.
-- Do not present this Compose file as a production deployment pattern.
-
-## Connecting the local model to GCP
-
-After participants can explain every local flow, open `docs/local-to-gcp.svg` and replace one platform layer at a time:
-
-1. Compose processes become GKE Deployments and Services.
-2. PostgreSQL, Silo, and Redis become production data services.
-3. Local ports become DNS, HTTPS load balancing, GKE Gateway, and HTTPRoutes.
-4. `.env` and local images become managed configuration, Workload Identity, and promoted registry artifacts.
-5. Local status and logs become centralized telemetry, alerts, backups, and recovery evidence.
-
-Keep asking: **Which CARE application responsibility changed?** The intended answer is usually “none”; the production platform adds managed operation around the same runtime relationships.
-
-Use `docs/local-to-gcp.md` for the full teaching sequence and transition exercise.
+- Do not connect to production databases, buckets, queues, or APIs.
+- Do not paste real secrets into `.env` or plug configuration.
+- Do not present the Compose file as a production deployment pattern.
+- Confirm before running `docker compose down -v`; it deletes local state.
