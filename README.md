@@ -271,6 +271,7 @@ Use the [guided CARE deployment workshop](https://jesbinjoseph.github.io/care-se
 ## Additional material
 
 - [Session 3 Markdown slides](docs/session-3-slides.md)
+- [Session 3 HTML slides](docs/session-3-canva-style.html)
 - [Workshop website source](docs/index.html)
 - [Architecture explanation](docs/architecture.md)
 - [CARE on a simple Kubernetes cluster](docs/kubernetes-local-architecture.md)
