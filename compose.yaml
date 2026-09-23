@@ -1,0 +1,129 @@
+name: care-local
+
+x-care-backend: &care-backend
+  image: care-local-backend
+  build:
+    context: ./care
+    dockerfile: docker/prod.Dockerfile
+    args:
+      ADDITIONAL_PLUGS: ${ADDITIONAL_PLUGS:-[]}
+  env_file: .env
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: care
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d care"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:8-alpine
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  minio:
+    image: docker.io/pgsty/silo:latest
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+      AWS_DEFAULT_REGION: ap-south-1
+    volumes:
+      - minio-data:/data
+      - ./care/docker/minio/init-script.sh:/init-script.sh:ro
+      - ./care/docker/minio/entrypoint.sh:/entrypoint.sh:ro
+    entrypoint: ["/entrypoint.sh"]
+    ports:
+      - "9001:9001"
+      - "9100:9000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  init:
+    <<: *care-backend
+    command:
+      - bash
+      - -c
+      - python manage.py migrate --noinput && python manage.py sync_permissions_roles && python manage.py sync_valueset
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: "no"
+
+  backend:
+    <<: *care-backend
+    entrypoint: ["bash", "start.sh"]
+    ports:
+      - "9000:9000"
+    depends_on:
+      init:
+        condition: service_completed_successfully
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:9000/ping/"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  worker:
+    <<: *care-backend
+    entrypoint: ["bash", "celery_worker.sh"]
+    depends_on:
+      init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  beat:
+    <<: *care-backend
+    entrypoint: ["bash", "celery_beat.sh"]
+    depends_on:
+      init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", "test -f /tmp/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  frontend:
+    image: care-local-frontend
+    build:
+      context: ./care_fe
+      dockerfile: Dockerfile
+    ports:
+      - "4000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  postgres-data:
+  redis-data:
+  minio-data:

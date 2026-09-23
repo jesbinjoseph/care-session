@@ -1,0 +1,252 @@
+# CARE local deployment session
+
+A training repository for building and running a complete CARE instance locally with Docker Compose. The stack is intentionally small enough to teach, while retaining the components required to explain CARE's request, data, and background-task flows.
+
+![CARE local architecture](docs/architecture.svg)
+
+## What runs
+
+| Service | Purpose | Source or image |
+|---|---|---|
+| `frontend` | CARE browser application | Built from `ohcnetwork/care_fe` |
+| `backend` | Django API and business logic | Built from `ohcnetwork/care` |
+| `worker` | Celery asynchronous task processing | Same image as backend |
+| `beat` | Celery scheduled-task dispatch | Same image as backend |
+| `init` | Migrations, permissions, and value-set synchronization | Same image as backend; exits after success |
+| `db` | PostgreSQL application database | `postgres:17-alpine` |
+| `redis` | Cache and Celery message broker | `redis:8-alpine` |
+| `minio` | Local S3-compatible object storage | `pgsty/silo` |
+| Plugs | Backend extensions | Installed into the backend image at build time |
+
+## Why the backend processes share one image
+
+The API, worker, Beat scheduler, and initialization job run the same CARE code. Compose changes only the process entry point:
+
+- API: `start.sh`
+- Worker: `celery_worker.sh`
+- Scheduler: `celery_beat.sh`
+- Initialization: Django management commands
+
+This is the central deployment concept: one tested application artifact can run different roles.
+
+## Prerequisites
+
+- Git
+- Docker Desktop or Docker Engine
+- Docker Compose v2 (`docker compose version`)
+- At least 8 GB of free memory recommended
+- Free ports: `4000`, `9000`, `9001`, and `9100`
+
+## 1. Clone this repository
+
+```bash
+git clone https://github.com/jesbinjoseph/care-session.git
+cd care-session
+```
+
+## 2. Clone CARE source repositories
+
+```bash
+git clone --depth 1 --branch develop https://github.com/ohcnetwork/care.git
+git clone --depth 1 --branch develop https://github.com/ohcnetwork/care_fe.git
+```
+
+The source directories are intentionally excluded from this repository. Participants can see exactly which upstream source is being built.
+
+## 3. Create local configuration
+
+```bash
+cp .env.example .env
+cp frontend.env.production.local care_fe/.env.production.local
+```
+
+The frontend setting points the participant's browser to `http://localhost:9000`. Container-to-container dependencies use Compose service names such as `db`, `redis`, and `minio`.
+
+## 4. Review the resolved stack
+
+```bash
+docker compose config --services
+docker compose config
+```
+
+Expected services:
+
+```text
+db
+redis
+minio
+init
+backend
+worker
+beat
+frontend
+```
+
+## 5. Build and start CARE
+
+```bash
+docker compose up -d --build --wait
+```
+
+The first run takes longer because Docker downloads base images and builds both CARE repositories. The `init` service runs migrations and synchronization commands, exits successfully, and allows the application processes to start.
+
+## 6. Verify the deployment
+
+```bash
+docker compose ps -a
+curl -f http://localhost:9000/ping/
+curl -I http://localhost:4000/
+docker compose exec backend python manage.py check
+```
+
+Expected endpoints:
+
+| Endpoint | URL |
+|---|---|
+| CARE frontend | http://localhost:4000 |
+| Backend health | http://localhost:9000/ping/ |
+| API documentation | http://localhost:9000/swagger/ |
+| MinIO console | http://localhost:9001 |
+
+## 7. Load synthetic workshop data
+
+```bash
+docker compose exec backend python manage.py load_fixtures
+```
+
+Use only fixture accounts and synthetic records. Never enter production credentials or patient data into this environment.
+
+## 8. Follow each flow
+
+### Browser request
+
+```text
+Browser → frontend → backend → PostgreSQL
+```
+
+### File upload
+
+```text
+Browser → backend → MinIO
+```
+
+### Background task
+
+```text
+Backend → Redis → worker → PostgreSQL or MinIO
+```
+
+### Scheduled task
+
+```text
+Beat → Redis → worker
+```
+
+Inspect logs while demonstrating:
+
+```bash
+docker compose logs -f frontend backend
+docker compose logs -f worker beat
+docker compose logs -f db redis minio
+```
+
+## Backend plugs
+
+CARE plugs are Django extensions. They are installed into the shared backend image during the Docker build and can add models, API routes, and Celery tasks. They are not a separate container.
+
+Core CARE uses:
+
+```env
+ADDITIONAL_PLUGS=[]
+```
+
+A plug configuration follows this structure:
+
+```env
+ADDITIONAL_PLUGS=[{"name":"my_plugin","package_name":"git+https://github.com/example/my_plugin.git","version":"@v1.0.0","configs":{}}]
+```
+
+Use the exact package and configuration documented by the selected plug. Pin a release or commit; do not use a floating branch. Rebuild after changing plugs:
+
+```bash
+docker compose build --no-cache backend worker beat init
+docker compose up -d --wait
+```
+
+Do not place plug secrets inside `ADDITIONAL_PLUGS`. Supply required values separately through the local environment.
+
+## Stop and restart
+
+Stop containers while preserving local data:
+
+```bash
+docker compose down
+```
+
+Start again:
+
+```bash
+docker compose up -d --wait
+```
+
+Delete all local data and start from an empty environment:
+
+```bash
+docker compose down -v
+```
+
+`down -v` permanently removes the workshop database, Redis data, and object-storage volume.
+
+## Troubleshooting
+
+### Docker daemon unavailable
+
+Start Docker Desktop or the Docker daemon, then verify:
+
+```bash
+docker info
+docker compose version
+```
+
+### A service is unhealthy
+
+```bash
+docker compose ps -a
+docker compose logs --tail=200 <service>
+```
+
+Check dependencies in this order: `db`, `redis`, `minio`, `init`, `backend`, `worker`, `beat`, and `frontend`.
+
+### Rebuild after source or plug changes
+
+```bash
+docker compose build --no-cache
+docker compose up -d --force-recreate --wait
+```
+
+### Reset the workshop
+
+```bash
+docker compose down -v
+docker compose up -d --build --wait
+```
+
+## Production boundary
+
+This repository is a learning environment, not a production deployment template. Production additionally requires:
+
+- Managed secrets and controlled rotation
+- TLS, DNS, load balancing, Gateway, and routing policy
+- Private networking and workload identities
+- Durable managed PostgreSQL and object storage
+- Multiple replicas, resource policies, and disruption controls
+- Centralized logs, metrics, dashboards, and alerts
+- Tested backup, restore, rollback, and recovery procedures
+- Pinned and approved release artifacts
+
+## Additional material
+
+- [Architecture explanation](docs/architecture.md)
+- [Facilitator guide](docs/facilitator-guide.md)
+- [Deployment readiness checklist](docs/readiness-checklist.md)
+- [Interactive architecture diagram](docs/architecture.html)

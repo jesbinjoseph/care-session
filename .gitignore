@@ -1,0 +1,6 @@
+.env
+care/
+care_fe/
+care-backups/
+.DS_Store
+*.log

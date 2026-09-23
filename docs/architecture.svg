@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">CARE local learning architecture</title>
+  <desc id="desc">Browser connects to frontend and backend. Backend, worker, beat and init share a CARE image with plugs. PostgreSQL, Redis and MinIO provide data services.</desc>
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#1e293b" stroke-width="1"/>
+    </pattern>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#94a3b8"/>
+    </marker>
+    <style>
+      .title{font:700 25px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#f8fafc}
+      .sub{font:14px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#94a3b8}
+      .name{font:700 16px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#f8fafc;text-anchor:middle}
+      .detail{font:12px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#cbd5e1;text-anchor:middle}
+      .label{font:11px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#94a3b8;text-anchor:middle}
+      .flow{fill:none;stroke:#94a3b8;stroke-width:2;marker-end:url(#arrow)}
+      .task{fill:none;stroke:#fb923c;stroke-width:2;marker-end:url(#arrow)}
+    </style>
+  </defs>
+
+  <rect width="1200" height="720" rx="18" fill="#020617"/>
+  <rect width="1200" height="720" rx="18" fill="url(#grid)"/>
+  <text x="52" y="52" class="title">CARE local learning architecture</text>
+  <text x="52" y="79" class="sub">One Compose network • shared CARE image • local-only data services</text>
+
+  <!-- Connections rendered behind components -->
+  <path class="flow" d="M180 200H280"/>
+  <path class="flow" d="M470 200H565"/>
+  <path class="flow" d="M760 200H880V485H930"/>
+  <path class="flow" d="M760 200H820V365H930"/>
+  <path class="flow" d="M760 200H820V245H930"/>
+  <path class="task" d="M650 405V485H930"/>
+  <path class="task" d="M650 525V485H930"/>
+  <path class="task" d="M930 485H760V405"/>
+  <path class="flow" d="M650 645V605H1050V545"/>
+
+  <text x="230" y="190" class="label">HTTP :4000</text>
+  <text x="518" y="190" class="label">API :9000</text>
+  <text x="858" y="235" class="label">SQL</text>
+  <text x="858" y="355" class="label">S3 API</text>
+  <text x="850" y="475" class="label">cache / tasks</text>
+
+  <!-- Browser -->
+  <rect x="50" y="155" width="130" height="90" rx="10" fill="#0f172a"/>
+  <rect x="50" y="155" width="130" height="90" rx="10" fill="rgba(30,41,59,.65)" stroke="#94a3b8" stroke-width="2"/>
+  <text x="115" y="192" class="name">Browser</text>
+  <text x="115" y="218" class="detail">Participant</text>
+
+  <!-- Frontend -->
+  <rect x="280" y="145" width="190" height="110" rx="10" fill="#0f172a"/>
+  <rect x="280" y="145" width="190" height="110" rx="10" fill="rgba(8,51,68,.55)" stroke="#22d3ee" stroke-width="2"/>
+  <text x="375" y="184" class="name">CARE Frontend</text>
+  <text x="375" y="211" class="detail">Built web application</text>
+  <text x="375" y="233" class="detail">localhost:4000</text>
+
+  <!-- Shared image boundary -->
+  <rect x="555" y="120" width="220" height="555" rx="14" fill="rgba(6,78,59,.08)" stroke="#34d399" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="575" y="147" class="sub" fill="#34d399">SHARED CARE IMAGE</text>
+
+  <!-- Backend -->
+  <rect x="575" y="165" width="180" height="90" rx="9" fill="#0f172a"/>
+  <rect x="575" y="165" width="180" height="90" rx="9" fill="rgba(6,78,59,.5)" stroke="#34d399" stroke-width="2"/>
+  <text x="665" y="199" class="name">Backend API</text>
+  <text x="665" y="225" class="detail">Django :9000</text>
+
+  <!-- Plugs -->
+  <rect x="590" y="275" width="150" height="62" rx="8" fill="#0f172a"/>
+  <rect x="590" y="275" width="150" height="62" rx="8" fill="rgba(136,19,55,.45)" stroke="#fb7185" stroke-width="2"/>
+  <text x="665" y="303" class="name">CARE Plugs</text>
+  <text x="665" y="323" class="detail">Build-time extensions</text>
+
+  <!-- Worker -->
+  <rect x="575" y="365" width="180" height="80" rx="9" fill="#0f172a"/>
+  <rect x="575" y="365" width="180" height="80" rx="9" fill="rgba(251,146,60,.3)" stroke="#fb923c" stroke-width="2"/>
+  <text x="665" y="399" class="name">Celery Worker</text>
+  <text x="665" y="424" class="detail">Runs queued tasks</text>
+
+  <!-- Beat -->
+  <rect x="575" y="485" width="180" height="80" rx="9" fill="#0f172a"/>
+  <rect x="575" y="485" width="180" height="80" rx="9" fill="rgba(251,146,60,.3)" stroke="#fb923c" stroke-width="2"/>
+  <text x="665" y="519" class="name">Celery Beat</text>
+  <text x="665" y="544" class="detail">Schedules tasks</text>
+
+  <!-- Init -->
+  <rect x="575" y="605" width="180" height="55" rx="9" fill="#0f172a"/>
+  <rect x="575" y="605" width="180" height="55" rx="9" fill="rgba(6,78,59,.35)" stroke="#34d399" stroke-width="2"/>
+  <text x="665" y="635" class="name">Init Job</text>
+  <text x="665" y="652" class="detail">Migrate + sync</text>
+
+  <!-- Database -->
+  <rect x="930" y="195" width="220" height="100" rx="10" fill="#0f172a"/>
+  <rect x="930" y="195" width="220" height="100" rx="10" fill="rgba(76,29,149,.5)" stroke="#a78bfa" stroke-width="2"/>
+  <text x="1040" y="232" class="name">PostgreSQL</text>
+  <text x="1040" y="259" class="detail">Durable application data</text>
+  <text x="1040" y="279" class="detail">named volume</text>
+
+  <!-- MinIO -->
+  <rect x="930" y="315" width="220" height="100" rx="10" fill="#0f172a"/>
+  <rect x="930" y="315" width="220" height="100" rx="10" fill="rgba(120,53,15,.4)" stroke="#fbbf24" stroke-width="2"/>
+  <text x="1040" y="352" class="name">MinIO</text>
+  <text x="1040" y="379" class="detail">Local object storage</text>
+  <text x="1040" y="399" class="detail">localhost:9001</text>
+
+  <!-- Redis -->
+  <rect x="930" y="435" width="220" height="100" rx="10" fill="#0f172a"/>
+  <rect x="930" y="435" width="220" height="100" rx="10" fill="rgba(251,146,60,.3)" stroke="#fb923c" stroke-width="2"/>
+  <text x="1040" y="472" class="name">Redis</text>
+  <text x="1040" y="499" class="detail">Cache + Celery broker</text>
+  <text x="1040" y="519" class="detail">named volume</text>
+
+  <!-- Legend -->
+  <rect x="50" y="610" width="440" height="62" rx="10" fill="rgba(15,23,42,.85)" stroke="#334155"/>
+  <circle cx="78" cy="635" r="6" fill="#22d3ee"/><text x="94" y="640" class="sub">UI</text>
+  <circle cx="153" cy="635" r="6" fill="#34d399"/><text x="169" y="640" class="sub">CARE</text>
+  <circle cx="249" cy="635" r="6" fill="#fb923c"/><text x="265" y="640" class="sub">Tasks</text>
+  <circle cx="356" cy="635" r="6" fill="#a78bfa"/><text x="372" y="640" class="sub">Data</text>
+  <text x="78" y="659" class="sub">All services run on one local Docker Compose network.</text>
+</svg>

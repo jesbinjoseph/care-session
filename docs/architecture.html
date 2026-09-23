@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CARE Local Learning Architecture</title>
+  <style>
+    *{box-sizing:border-box}body{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#020617;color:#f8fafc;margin:0;padding:32px}.wrap{max-width:1200px;margin:0 auto}.head{display:flex;align-items:center;gap:12px}.dot{width:12px;height:12px;border-radius:50%;background:#22d3ee;box-shadow:0 0 18px #22d3ee}h1{font-size:24px;margin:0}.subtitle{color:#94a3b8;margin:8px 0 24px 24px}.diagram{border:1px solid #1e293b;border-radius:16px;overflow:auto;background:rgba(15,23,42,.45)}.diagram svg{display:block;width:100%;min-width:900px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:20px}.card{border:1px solid #1e293b;border-radius:12px;padding:18px;background:rgba(15,23,42,.55)}.card h2{font-size:14px;margin:0 0 10px}.card p,.card li{color:#94a3b8;font-size:12px;line-height:1.55}.card ul{padding-left:18px;margin:0}.cyan{color:#22d3ee}.green{color:#34d399}.orange{color:#fb923c}.footer{text-align:center;color:#475569;font-size:11px;margin-top:20px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head"><span class="dot"></span><h1>CARE local learning architecture</h1></div>
+  <p class="subtitle">A complete local stack that keeps each runtime role visible.</p>
+  <div class="diagram">
+    <svg viewBox="0 0 1200 720" role="img" aria-label="CARE local architecture">
+      <defs>
+        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1e293b"/></pattern>
+        <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#94a3b8"/></marker>
+        <style>.t{font:700 25px ui-monospace;fill:#f8fafc}.s{font:14px ui-monospace;fill:#94a3b8}.n{font:700 16px ui-monospace;fill:#f8fafc;text-anchor:middle}.d{font:12px ui-monospace;fill:#cbd5e1;text-anchor:middle}.l{font:11px ui-monospace;fill:#94a3b8;text-anchor:middle}.f{fill:none;stroke:#94a3b8;stroke-width:2;marker-end:url(#arrow)}.q{fill:none;stroke:#fb923c;stroke-width:2;marker-end:url(#arrow)}</style>
+      </defs>
+      <rect width="1200" height="720" fill="#020617"/><rect width="1200" height="720" fill="url(#grid)"/>
+      <text x="52" y="52" class="t">CARE local learning architecture</text><text x="52" y="79" class="s">One Compose network • shared CARE image • local-only data services</text>
+      <path class="f" d="M180 200H280"/><path class="f" d="M470 200H565"/><path class="f" d="M760 200H880V485H930"/><path class="f" d="M760 200H820V365H930"/><path class="f" d="M760 200H820V245H930"/><path class="q" d="M650 405V485H930"/><path class="q" d="M650 525V485H930"/><path class="q" d="M930 485H760V405"/><path class="f" d="M650 645V605H1050V545"/>
+      <text x="230" y="190" class="l">HTTP :4000</text><text x="518" y="190" class="l">API :9000</text><text x="858" y="235" class="l">SQL</text><text x="858" y="355" class="l">S3 API</text><text x="850" y="475" class="l">cache / tasks</text>
+      <g><rect x="50" y="155" width="130" height="90" rx="10" fill="#0f172a"/><rect x="50" y="155" width="130" height="90" rx="10" fill="rgba(30,41,59,.65)" stroke="#94a3b8" stroke-width="2"/><text x="115" y="192" class="n">Browser</text><text x="115" y="218" class="d">Participant</text></g>
+      <g><rect x="280" y="145" width="190" height="110" rx="10" fill="#0f172a"/><rect x="280" y="145" width="190" height="110" rx="10" fill="rgba(8,51,68,.55)" stroke="#22d3ee" stroke-width="2"/><text x="375" y="184" class="n">CARE Frontend</text><text x="375" y="211" class="d">Built web application</text><text x="375" y="233" class="d">localhost:4000</text></g>
+      <rect x="555" y="120" width="220" height="555" rx="14" fill="rgba(6,78,59,.08)" stroke="#34d399" stroke-width="2" stroke-dasharray="8 6"/><text x="575" y="147" class="s">SHARED CARE IMAGE</text>
+      <g><rect x="575" y="165" width="180" height="90" rx="9" fill="#0f172a"/><rect x="575" y="165" width="180" height="90" rx="9" fill="rgba(6,78,59,.5)" stroke="#34d399" stroke-width="2"/><text x="665" y="199" class="n">Backend API</text><text x="665" y="225" class="d">Django :9000</text></g>
+      <g><rect x="590" y="275" width="150" height="62" rx="8" fill="#0f172a"/><rect x="590" y="275" width="150" height="62" rx="8" fill="rgba(136,19,55,.45)" stroke="#fb7185" stroke-width="2"/><text x="665" y="303" class="n">CARE Plugs</text><text x="665" y="323" class="d">Build-time extensions</text></g>
+      <g><rect x="575" y="365" width="180" height="80" rx="9" fill="#0f172a"/><rect x="575" y="365" width="180" height="80" rx="9" fill="rgba(251,146,60,.3)" stroke="#fb923c" stroke-width="2"/><text x="665" y="399" class="n">Celery Worker</text><text x="665" y="424" class="d">Runs queued tasks</text></g>
+      <g><rect x="575" y="485" width="180" height="80" rx="9" fill="#0f172a"/><rect x="575" y="485" width="180" height="80" rx="9" fill="rgba(251,146,60,.3)" stroke="#fb923c" stroke-width="2"/><text x="665" y="519" class="n">Celery Beat</text><text x="665" y="544" class="d">Schedules tasks</text></g>
+      <g><rect x="575" y="605" width="180" height="55" rx="9" fill="#0f172a"/><rect x="575" y="605" width="180" height="55" rx="9" fill="rgba(6,78,59,.35)" stroke="#34d399" stroke-width="2"/><text x="665" y="635" class="n">Init Job</text><text x="665" y="652" class="d">Migrate + sync</text></g>
+      <g><rect x="930" y="195" width="220" height="100" rx="10" fill="#0f172a"/><rect x="930" y="195" width="220" height="100" rx="10" fill="rgba(76,29,149,.5)" stroke="#a78bfa" stroke-width="2"/><text x="1040" y="232" class="n">PostgreSQL</text><text x="1040" y="259" class="d">Durable application data</text><text x="1040" y="279" class="d">named volume</text></g>
+      <g><rect x="930" y="315" width="220" height="100" rx="10" fill="#0f172a"/><rect x="930" y="315" width="220" height="100" rx="10" fill="rgba(120,53,15,.4)" stroke="#fbbf24" stroke-width="2"/><text x="1040" y="352" class="n">MinIO</text><text x="1040" y="379" class="d">Local object storage</text><text x="1040" y="399" class="d">localhost:9001</text></g>
+      <g><rect x="930" y="435" width="220" height="100" rx="10" fill="#0f172a"/><rect x="930" y="435" width="220" height="100" rx="10" fill="rgba(251,146,60,.3)" stroke="#fb923c" stroke-width="2"/><text x="1040" y="472" class="n">Redis</text><text x="1040" y="499" class="d">Cache + Celery broker</text><text x="1040" y="519" class="d">named volume</text></g>
+      <rect x="50" y="610" width="440" height="62" rx="10" fill="rgba(15,23,42,.85)" stroke="#334155"/><circle cx="78" cy="635" r="6" fill="#22d3ee"/><text x="94" y="640" class="s">UI</text><circle cx="153" cy="635" r="6" fill="#34d399"/><text x="169" y="640" class="s">CARE</text><circle cx="249" cy="635" r="6" fill="#fb923c"/><text x="265" y="640" class="s">Tasks</text><circle cx="356" cy="635" r="6" fill="#a78bfa"/><text x="372" y="640" class="s">Data</text><text x="78" y="659" class="s">All services run on one local Compose network.</text>
+    </svg>
+  </div>
+  <div class="cards">
+    <section class="card"><h2 class="cyan">Request flow</h2><ul><li>Browser loads the frontend</li><li>Frontend calls the backend API</li><li>Backend reads data and files</li></ul></section>
+    <section class="card"><h2 class="orange">Task flow</h2><ul><li>Backend and Beat publish to Redis</li><li>Worker consumes queued tasks</li><li>All roles share one CARE image</li></ul></section>
+    <section class="card"><h2 class="green">Plugs</h2><ul><li>Installed during image build</li><li>Extend models, APIs, and tasks</li><li>Not a separate container</li></ul></section>
+  </div>
+  <p class="footer">CARE Fundamentals • Local deployment session</p>
+</div>
+</body>
+</html>
