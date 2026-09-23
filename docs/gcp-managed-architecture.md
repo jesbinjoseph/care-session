@@ -72,18 +72,9 @@ Backend API, workers, and Beat must use the same plug-enabled CARE image.
 - The backend uses a dedicated Kubernetes service account to reach GCS buckets and other permitted APIs.
 - Public exposure is limited to the HTTPS load balancer and Gateway routes.
 
-## Relationship to the current infrastructure repository
+## Validate dependency choices
 
-The current infrastructure provides the Gateway/GKE baseline, private Cloud SQL, GCS buckets, KMS, Workload Identity, Managed Prometheus, and Cloud Logging. Runtime image locations are supplied through Helm configuration.
-
-The material architectural change in this recommended target is the cache and task broker:
-
-```text
-Current repository: Helm-managed workload inside GKE
-Recommended target: Memorystore over private networking
-```
-
-The change requires CARE and Celery compatibility validation, updated broker/cache endpoints, private network access, health monitoring, capacity configuration, and a tested cutover plan.
+The diagram proposes Memorystore for the cache and task broker; it is not an automatic replacement for the local broker. Verify CARE and Celery compatibility, private connectivity, health monitoring, capacity, and a tested cutover before using a managed alternative. Likewise, test CARE's object-storage integration with GCS before choosing it.
 
 ## Optional extensions
 

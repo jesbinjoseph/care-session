@@ -1,20 +1,20 @@
 # CARE local deployment session
 
-A training repository for building and running a complete CARE instance locally with Docker Compose. The stack is intentionally small enough to teach while retaining the CARE application roles and supporting dependencies.
+A training repository for learning to host and manage a CARE instance. Build a safe local lab with Docker Compose, verify that it works, practice routine operations, and prepare an owner-assigned hosting plan. This stack is not a production deployment template.
 
 See [Architecture explanation](docs/architecture.md) for the Markdown and Mermaid view of the local system.
 
 ## Teaching progression
 
-Start with the local diagram until participants can explain the two CARE images, runtime roles, and dependency responsibilities. Then introduce the same application model on a simple Kubernetes cluster:
+Start with the local diagram until participants can explain the two CARE images, runtime roles, and dependency responsibilities. Work through the [operator worksheet](docs/operator-worksheet.md): build, verify, diagnose, preserve data, choose a host, and assign owners.
+
+Kubernetes is one possible way to host the same application model:
 
 - [CARE on a simple Kubernetes cluster](docs/kubernetes-local-architecture.md)
 
-Finally, replace each local platform capability with its GCP equivalent using [From local Compose to GCP](docs/local-to-gcp.md).
+GCP is an optional platform example in [From local Compose to GCP](docs/local-to-gcp.md), not a prerequisite to running your own instance.
 
-The [current OpenTofu-managed GCP architecture](docs/gcp-current-architecture.md) keeps the CARE application roles recognizable while moving durable data to managed GCP services. The cache and task broker remain a Helm-managed workload inside GKE.
-
-The [recommended managed-services GCP architecture](docs/gcp-managed-architecture.md) goes one step further by moving the compatible cache and broker capability to a managed GCP service.
+The [managed-services GCP diagram](docs/gcp-managed-architecture.md) illustrates potential services. Verify CARE storage integration and Celery broker compatibility before selecting replacements.
 
 ## What runs
 
@@ -77,7 +77,7 @@ The source directories are intentionally excluded from this repository. Particip
 ## 3. Create local configuration
 
 ```bash
-cp .env.example .env
+test -f .env || cp .env.example .env
 cp frontend.env.production.local care_fe/.env.production.local
 ```
 
@@ -87,7 +87,7 @@ The frontend setting points the participant's browser to `http://localhost:9000`
 
 ```bash
 docker compose config --services
-docker compose config
+docker compose config --quiet
 ```
 
 Expected services:
@@ -131,44 +131,27 @@ Expected endpoints:
 ## 7. Load synthetic workshop data
 
 ```bash
-docker compose exec backend python manage.py load_fixtures
+docker compose exec backend python -m pip install --target /tmp/care-fixtures-deps 'Faker==38.2.0'
+docker compose exec -e PYTHONPATH=/tmp/care-fixtures-deps \
+  -e 'DJANGO_ALLOWED_HOSTS=["localhost","127.0.0.1","backend","testserver"]' \
+  backend python manage.py load_fixtures
 ```
 
-Use only fixture accounts and synthetic records. Never enter production credentials or patient data into this environment.
+The upstream production image omits the development-only Faker dependency, and the fixture runner uses Django's `testserver` host. These commands supply both only for the local fixture run; repeat the temporary install after recreating the backend container. Use only fixture accounts and synthetic records. Never enter production credentials or patient data into this environment.
 
-## 8. Follow each flow
+## 8. Operate and troubleshoot the instance
 
-### Browser request
+Record outcomes in the [operator worksheet](docs/operator-worksheet.md). Confirm that a synthetic record can be saved and reopened, a test file uploaded and retrieved, and a *triggered* background job completed (otherwise mark it unknown). A passing health endpoint does not prove these actions.
 
-```text
-Browser → frontend → backend → PostgreSQL
-```
-
-### File upload
-
-```text
-Browser → backend → Silo
-```
-
-### Background task
-
-```text
-Backend → Redis → worker → PostgreSQL or Silo
-```
-
-### Scheduled task
-
-```text
-Beat → Redis → worker
-```
-
-Inspect logs while demonstrating:
+For a daily check, inspect service health and the API/frontend response, then investigate the first failing dependency before downstream components:
 
 ```bash
 docker compose logs -f frontend backend
 docker compose logs -f worker beat
 docker compose logs -f db redis silo
 ```
+
+Practice a safe stop/restart and reopen the same synthetic record and file. Plan a separate isolated backup/restore test before making recovery claims. For a real instance, assign owners for alerts, release, migrations, storage, secrets, backup, restore and escalation.
 
 ## Backend plugs
 
@@ -264,18 +247,29 @@ This repository is a learning environment, not a production deployment template.
 - Tested backup, restore, rollback, and recovery procedures
 - Pinned and approved release artifacts
 
-## Workshop website
+## Workshop presentations and website
 
-Use the [guided CARE deployment workshop](https://jesbinjoseph.github.io/care-session/) during the session. It includes presenter mode, copyable commands, local verification, architecture diagrams, the local-to-GCP transition, and the production readiness gate.
+Use the [guided CARE deployment workshop](https://jesbinjoseph.github.io/care-session/) during the session. It includes copyable commands, local verification, daily checks, hosting choices, and the owner-assigned worksheet.
+
+The canonical presentation is [Session 3 Markdown slides](docs/session-3-slides.md). To present or rebuild it with Slidev (requires Node and npm):
+
+```bash
+cd slides
+npm ci
+npm run dev
+# or: npm run build
+```
+
+`slides/slides.md` is a symlink to the canonical Markdown; edit `docs/session-3-slides.md` only. The [older standalone HTML deck](docs/session-3-canva-style.html) is retained for reference and **does not reflect this operator-focused revision**. The Slidev build output is generated locally and not committed.
 
 ## Additional material
 
 - [Session 3 Markdown slides](docs/session-3-slides.md)
-- [Session 3 HTML slides](docs/session-3-canva-style.html)
+- [Operator worksheet](docs/operator-worksheet.md)
+- [Earlier HTML slides (not updated for this revision)](docs/session-3-canva-style.html)
 - [Workshop website source](docs/index.html)
 - [Architecture explanation](docs/architecture.md)
 - [CARE on a simple Kubernetes cluster](docs/kubernetes-local-architecture.md)
-- [Current OpenTofu-managed GCP architecture](docs/gcp-current-architecture.md)
 - [Recommended managed-services GCP architecture](docs/gcp-managed-architecture.md)
 - [From local Compose to GCP](docs/local-to-gcp.md)
 - [Facilitator guide](docs/facilitator-guide.md)

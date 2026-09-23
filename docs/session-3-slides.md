@@ -1,13 +1,19 @@
-# CARE Fundamentals — Session 3
+---
+theme: default
+title: "Host and manage your own CARE instance"
+info: "CARE operator workshop — synthetic data only"
+---
 
-## How CARE runs: local environment to GCP
+# Host and manage your own CARE instance
 
-A beginner-friendly deployment workshop
+## A hands-on operator workshop
 
-**Today’s outcome:** run CARE locally, explain how its parts work together, and decide what must change before production.
+Build a safe local instance, verify it, operate it, and design a hosting plan you can own.
+
+**Take home:** a running lab, a verification record, and an owner-assigned hosting and operations plan.
 
 <!-- Presenter notes
-Open with the outcome, not infrastructure. Say: "By the end, you will be able to draw CARE, run it, test it, and explain what production adds."
+Open with the operator's job, not cloud infrastructure. By the end, participants should know what they host, what they manage, how they detect failure, and how they recover.
 Ask for a quick show of hands: Who has used CARE? Docker? Kubernetes?
 Do not teach Kubernetes terminology yet.
 -->
@@ -17,21 +23,20 @@ Do not teach Kubernetes terminology yet.
 # The route we will follow
 
 ```text
-Understand CARE
+Understand the components and their owners
       ↓
-Run and verify CARE locally
+Build, configure, run, and verify a local instance
       ↓
-Map the same system to GCP
+Practice operations: diagnose, preserve data, recover
       ↓
-Make a readiness decision
+Choose a hosting model and assign responsibilities
 ```
 
-You will finish with an evidence-based deployment readiness checklist.
+You will finish with an evidence-based operator handoff, not just a running container.
 
 <!-- Presenter notes
 This is the map for the session. Return to it at each section change.
-Say: "We will first make CARE understandable. Only then will we add cloud infrastructure."
-The final deliverable is one readiness checklist per team.
+The final deliverable is one completed operator worksheet and readiness checklist per team.
 -->
 
 ---
@@ -59,7 +64,7 @@ Transition: reveal the small local architecture behind that experience.
 
 # CARE in a local environment
 
-![CARE local architecture](https://raw.githubusercontent.com/jesbinjoseph/care-session/main/docs/architecture.svg)
+<img src="./architecture.svg" alt="CARE local architecture" width="690">
 
 <!-- Presenter notes
 Point to the browser first, then introduce each supporting component.
@@ -132,7 +137,7 @@ The same backend image runs three process roles.
 
 The frontend build reads its `REACT_*` variables before creating the static files.
 
-```env
+```bash
 REACT_CARE_API_URL=https://api.example.org
 REACT_ENABLE_MINIMAL_PATIENT_REGISTRATION=true
 ```
@@ -174,7 +179,7 @@ Another suitable static web server could serve the same build output.
 
 The backend build receives `ADDITIONAL_PLUGS` as a build argument.
 
-```env
+```bash
 ADDITIONAL_PLUGS=[]
 ```
 
@@ -225,9 +230,11 @@ Rules:
 - Do not connect to production services.
 - Do not treat this Compose stack as a production design.
 
+Record observations in `docs/operator-worksheet.md`.
+
 <!-- Presenter notes
 Assign roles before opening a terminal. Swap roles halfway through if time allows.
-Show docs/readiness-checklist.md. The verifier should capture command output or screenshots, not tick boxes from memory.
+Show docs/operator-worksheet.md. The verifier should capture command output or screenshots, not tick boxes from memory.
 -->
 
 ---
@@ -238,15 +245,12 @@ Show docs/readiness-checklist.md. The verifier should capture command output or 
 git clone https://github.com/jesbinjoseph/care-session.git
 cd care-session
 
-git clone --depth 1 --branch develop \
-  https://github.com/ohcnetwork/care.git
-
-git clone --depth 1 --branch develop \
-  https://github.com/ohcnetwork/care_fe.git
-
-cp .env.example .env
+git clone --depth 1 --branch develop https://github.com/ohcnetwork/care.git
+git clone --depth 1 --branch develop https://github.com/ohcnetwork/care_fe.git
+test -f .env || cp .env.example .env
 cp frontend.env.production.local \
   care_fe/.env.production.local
+docker compose config --quiet
 ```
 
 The browser reaches the local API at `http://localhost:9000`.
@@ -254,7 +258,7 @@ The browser reaches the local API at `http://localhost:9000`.
 <!-- Presenter notes
 Ask participants to install Docker and clone repositories before the session if bandwidth is limited.
 Explain the three repositories: workshop instructions, backend source, and frontend source.
-Expected evidence: all three directories exist and both copied environment files are present.
+Expected evidence: both source repositories exist, local configuration is present, and Compose resolves. Never overwrite an existing `.env`.
 -->
 
 ---
@@ -265,22 +269,22 @@ Expected evidence: all three directories exist and both copied environment files
 docker compose config --services
 ```
 
-You should see seven roles:
+You should see these exact seven service names:
 
 ```text
-database
-cache and task broker
-Beat
-worker
-S3-compatible storage
+db
+redis
+silo
+beat
 backend
+worker
 frontend
 ```
 
-This checks the resolved Compose model without starting containers.
+`db`, `redis`, and `silo` implement the workshop's generic database, cache/broker, and S3-compatible storage roles. This check does not start containers.
 
 <!-- Presenter notes
-Ask participants to map each service to the architecture diagram.
+Ask participants to map each literal service name to its responsibility in the architecture diagram.
 Plugs do not appear as a service because they are installed inside the backend image.
 Expected evidence: seven service names and no Compose configuration error.
 -->
@@ -339,8 +343,11 @@ Do not move on until participants can explain "running" versus "working."
 # Use CARE with synthetic data
 
 ```bash
-docker compose exec backend \
-  python manage.py load_fixtures
+docker compose exec backend python -m pip install \
+  --target /tmp/care-fixtures-deps 'Faker==38.2.0'
+docker compose exec -e PYTHONPATH=/tmp/care-fixtures-deps \
+  -e 'DJANGO_ALLOWED_HOSTS=["localhost","127.0.0.1","backend","testserver"]' \
+  backend python manage.py load_fixtures
 ```
 
 Then complete one simple journey:
@@ -350,7 +357,7 @@ Then complete one simple journey:
 3. Save a basic clinical workflow.
 4. Upload and retrieve a test document.
 
-Never enter real patient data in the workshop environment.
+Faker is a development-only dependency installed temporarily for this local exercise. Never enter real patient data in the workshop environment.
 
 <!-- Presenter notes
 Keep this short. The objective is deployment validation, not feature training.
@@ -381,7 +388,40 @@ The goal is a repeatable diagnostic order, not solving every Docker problem.
 
 ---
 
-# Capture what you proved
+# Practice a daily operator check
+
+| Check | If it fails, first action |
+|---|---|
+| Browser and API respond | Check service state, then backend/frontend logs |
+| Beat initialized; worker is running | Inspect Beat, then broker and worker logs |
+| Synthetic record and test file can be read | Check database and object storage independently |
+| Queue is not aging; free capacity is sufficient | Assign an owner and investigate before users report a failure |
+
+Record the time, result, and person responsible. A green container status cannot replace an application check.
+
+<!-- Presenter notes
+Ask each pair to perform the first two checks now; the latter two require application activity or metrics. If not tested, record unknown. For a real instance, define frequencies, thresholds, alert routing, and a runbook.
+-->
+
+---
+
+# Plan a safe change and a recovery
+
+```text
+Pin two images → test with synthetic data → approve → deploy → verify
+       ↓                    ↓                        ↓
+   plug set          backup and restore         rollback target
+```
+
+Write down who applies migrations (Beat at startup), who monitors the release, when to roll back, and who restores the database **and** uploaded files if needed.
+
+<!-- Presenter notes
+This is a planning exercise, not permission to experiment with a real instance. A code rollback cannot always undo a schema or data migration. Require an isolated restore test before making recovery promises.
+-->
+
+---
+
+# Keep a record of what you proved
 
 Each pair should now have evidence that:
 
@@ -391,138 +431,98 @@ Each pair should now have evidence that:
 - Django passed its system check;
 - a synthetic workflow reached the database;
 - a test file reached S3-compatible storage;
-- a background task reached a worker;
-- stop and restart preserve local data.
+- a background task reached a worker, if one was triggered;
+- stop and restart preserve local data, after testing it.
 
 <!-- Presenter notes
-Pause and update the readiness checklist now.
+Pause and update the operator worksheet now. Do not mark task processing or data persistence as passed unless actually tested.
 If an item is untested, mark it unknown. Unknown is not the same as passed.
-Transition: "We understand CARE on one machine. Now we keep the application model and replace the platform around it."
+Transition: "A running lab is the start of operating CARE, not the end."
 -->
 
 ---
 
-# Compose teaches CARE, not production
+# Compose teaches the roles, not a hosting prescription
 
-| Local workshop | Production target |
+| Local lab | Your own instance must decide |
 |---|---|
-| One Docker host | GKE with controlled compute capacity |
-| Local database | Cloud SQL |
-| Local S3-compatible storage | GCS buckets |
-| Local cache and task broker | Memorystore |
-| Two local CARE images | Frontend and backend images in Artifact Registry, pinned by digest |
-| `.env` file | Managed configuration and secrets |
-| Local ports | DNS, HTTPS load balancer, Gateway, and HTTPRoutes |
-| Terminal logs | Centralized logs, metrics, dashboards, and alerts |
+| One Docker host | Workstation, VM, server, or cluster; capacity and maintenance owner |
+| Database, file store, cache/broker containers | Self-managed or compatible managed dependencies; backups and access |
+| Two locally built CARE images | Pinned frontend and backend artifacts; promotion and rollback |
+| Local demo configuration | Separate environments, secrets and browser-reachable URLs |
+| Published local ports | DNS, HTTPS, network boundaries and routing |
+| Terminal logs | Monitoring, alerts, on-call ownership and recovery |
 
-The CARE responsibilities stay recognizable. The platform becomes managed, private, observable, and recoverable.
+The responsibilities do not disappear when a provider manages some of them.
 
 <!-- Presenter notes
-Avoid presenting Compose as a small production installation.
-Read each row left to right. Ask what application responsibility changes. Usually, none.
+Avoid presenting Compose as a small production installation. Ask the team who owns each responsibility in their own hosting model. A managed service still needs configuration, evidence, and an owner.
 -->
 
 ---
 
-# CARE on a simple Kubernetes cluster
+# Kubernetes is one possible hosting model
 
 ```mermaid
 flowchart LR
-    user[User] --> ingress[Ingress]
-    ingress --> feService[Frontend Service]
-    ingress --> apiService[Backend Service]
-
-    subgraph cluster[Kubernetes cluster]
-        feService --> fePods[Frontend Pods<br/>frontend image]
-        apiService --> apiPods[API Pods<br/>backend image]
-
-        worker[Worker Pods<br/>backend image]
-        beat[Beat Pod<br/>backend image]
-
-        config[ConfigMap] -.-> fePods
-        config -.-> apiPods
-        secrets[Secrets] -.-> apiPods
-        secrets -.-> worker
-        secrets -.-> beat
-
-        apiPods --> database[(Database)]
-        apiPods --> storage[(S3-compatible storage)]
-        apiPods --> broker[Cache + task broker]
-        worker --> broker
-        beat --> broker
-    end
+    user[User] --> entry[HTTPS entry point]
+    entry --> frontend[Frontend Service + Pods]
+    entry --> api[API Service + Pods]
+    api --> database[(Database)]
+    api --> storage[(S3-compatible storage)]
+    api --> broker[Cache + task broker]
+    broker --> worker[Worker Pods]
+    beat[Beat Pod] --> broker
 ```
 
-Kubernetes adds Services, Pods, configuration, secrets, health checks, and controlled replicas. CARE still uses two application images.
+Kubernetes adds Services, Pods, configuration, secrets, health checks, and controlled replicas. CARE still uses two application images. The frontend API URL belongs to the **image build**, not a runtime ConfigMap.
 
 <!-- Presenter notes
-Use this as the bridge between Compose and GKE. Introduce only the Kubernetes objects participants need: Ingress, Services, Pods, Secrets, and ConfigMaps.
+Use this only if the participants are considering Kubernetes. Introduce Services, Pods, Secrets, and runtime configuration. Do not suggest this template is deployable as-is.
 API, worker, and Beat remain separate runtime roles using the same backend image. Beat still owns startup initialization.
 This is a teaching architecture, not a production deployment template.
 -->
 
 ---
 
-# Local CARE mapped to GCP
+# One platform example: local roles to GCP
 
-![CARE local-to-GCP mapping](https://raw.githubusercontent.com/jesbinjoseph/care-session/main/docs/local-to-gcp.svg)
+<img src="./local-to-gcp.svg" alt="CARE local-to-GCP mapping" width="690">
 
 <!-- Presenter notes
-Use this as a translation exercise. Point to a local box and ask for its GCP destination.
-Frontend, API, workers, and Beat remain separate runtime roles in GKE.
-The local cache and task broker move to Memorystore in the recommended target. The current infrastructure repository does not yet provision it.
+Use this as an example, not the prescribed destination. Ask participants to map the same roles to their own provider or self-managed platform. Cloud SQL and GCS require CARE configuration and integration checks; validate a managed broker against Celery before selecting it.
 -->
 
 ---
 
-# Current OpenTofu-managed GCP architecture
+# Name the operator for each responsibility
 
 ```mermaid
 flowchart LR
-    user[Users] --> edge[Regional HTTPS load balancer]
-    edge --> gateway[GKE Gateway + HTTPRoutes]
-
-    subgraph gke[GKE]
-        gateway --> feService[Frontend Service]
-        gateway --> apiService[Backend Service]
-        feService --> fePods[Frontend Pods<br/>frontend image]
-        apiService --> apiPods[API Pods<br/>backend image]
-
-        worker[Worker Pods<br/>backend image]
-        beat[Beat Pod<br/>backend image]
-        broker[Cache + task broker<br/>in-cluster workload]
-
-        apiPods --> broker
-        worker --> broker
-        beat --> broker
-        config[ConfigMaps + Secrets] -.-> fePods
-        config -.-> apiPods
-        config -.-> worker
-        config -.-> beat
-    end
-
-    apiPods --> sql[(Cloud SQL)]
-    apiPods --> gcs[(GCS buckets)]
-    gke -.-> ops[Cloud Logging +<br/>Managed Prometheus]
+    users[CARE users] --> edge[DNS, TLS, routing owner]
+    edge --> app[Frontend + API owner]
+    app --> records[(Database + restore owner)]
+    app --> files[(File storage + recovery owner)]
+    app --> queue[Broker + queue owner]
+    queue --> jobs[Worker + Beat owner]
+    app -.-> alerts[Monitoring + incident owner]
+    jobs -.-> alerts
 ```
 
-The current repository keeps the cache and broker inside GKE. Cloud SQL and GCS provide the managed durable data services.
+An instance is manageable only when each box has a named operator and a way to verify it works.
 
 <!-- Presenter notes
-Present this as the current repository implementation without naming real environments or infrastructure identifiers.
-Beat performs migrations and synchronization before scheduling tasks; there is no separate migration or initialization workload.
-Transition to the recommended target by moving the compatible cache and broker capability to a managed service.
+Use the team's operator worksheet to assign owners and evidence. One person may own several roles, but none can be assumed away. The diagram deliberately avoids disclosing any current production environment.
 -->
 
 ---
 
-# Recommended GCP architecture
+# GCP is an example, not a requirement
 
-![Managed-services GCP architecture](https://raw.githubusercontent.com/jesbinjoseph/care-session/main/docs/gcp-managed-architecture.svg)
+<img src="./gcp-managed-architecture.svg" alt="Managed-services GCP architecture" width="690">
 
 <!-- Presenter notes
-Teach the diagram in three passes: user request path, CARE workloads, then managed dependencies and platform controls.
-Do not explain every GCP service at once.
+Only show this if useful to the audience. Cloud SQL, GCS, and a compatible managed broker are choices to test, not automatic drop-in substitutions. Ask how each role would be run on the participants' chosen platform.
 -->
 
 ---
@@ -547,12 +547,12 @@ Separate starting estimates from production evidence. Do not offer universal CPU
 
 ---
 
-# Keep environments separate
+# Separate every environment and its data
 
 | Environment | Purpose | Data | Change pace |
 |---|---|---|---|
 | Development | Fast engineering feedback | Synthetic | Frequent |
-| Staging | Release and integration checks | Synthetic or approved masked data | Controlled |
+| Staging | Release and integration checks | Synthetic | Controlled |
 | Production | Live service delivery | Protected live data | Approved and auditable |
 
 Separate credentials, identities, databases, buckets, hostnames, configuration, approvals, and alerts.
@@ -615,10 +615,10 @@ Ask what evidence participants need before approving the production arrow.
 | Can users reach CARE? | Gateway and application availability |
 | Is CARE responding normally? | Request latency and error rate |
 | Are background jobs moving? | Queue depth, oldest task, failures |
-| Can data services keep up? | Cloud SQL, Memorystore, and GCS metrics |
+| Can data services keep up? | Database, file storage, and broker metrics |
 | Can operators act? | Alert owner, notification path, and runbook |
 
-Use Cloud Logging and Managed Service for Prometheus to centralize this evidence.
+Choose a logging and metrics system your operators will actually monitor; record alert thresholds and owners.
 
 <!-- Presenter notes
 Choose one failure, such as a growing Celery queue. Ask what metric reveals it, who receives the alert, and what the runbook says.
@@ -631,8 +631,8 @@ Do not list dashboards without explaining the question each one answers.
 
 Minimum production controls:
 
-- private GKE nodes and private data-service endpoints;
-- Workload Identity instead of service-account key files;
+- private data-service endpoints and restricted network access;
+- workload identities instead of long-lived key files where supported;
 - least-privilege identities for each workload;
 - managed secrets with a tested rotation process;
 - TLS for public and database connections;
@@ -642,7 +642,7 @@ Minimum production controls:
 A control is complete only after the team tests it.
 
 <!-- Presenter notes
-Give one concrete test per control. Example: prove a Pod without the storage role cannot read a bucket.
+Give one concrete test per control. Example: prove a workload without the storage role cannot read a bucket.
 Keep this focused on operating CARE, not general cloud-security theory.
 -->
 
@@ -700,7 +700,7 @@ A deployment needs evidence for:
 6. backup restoration and rollback;
 7. operational and escalation ownership.
 
-Use `docs/readiness-checklist.md`.
+Use `docs/operator-worksheet.md` to name operators and record lab results; use `docs/readiness-checklist.md` for separate real-deployment evidence.
 
 <!-- Presenter notes
 Update the checklist with links, outputs, or screenshots.
@@ -734,30 +734,28 @@ Challenge unsupported "go" decisions by asking for the exact evidence.
 
 ---
 
-# What participants can now explain
+# What participants can now do
 
 ```text
-CARE locally
-Frontend + API + Database + S3 storage + Cache/broker + Worker + Beat
-
-CARE on GCP
-GKE workloads + Cloud SQL + GCS buckets + Memorystore
-
-Production readiness
-A working deployment plus security, observation, recovery, and ownership
+Host a lab instance
+Build two CARE images; run API, worker, Beat, frontend, and dependencies
+Manage it
+Check health, inspect logs, preserve data, plan release and recovery
+Plan your own hosting
+Select and verify compatible dependencies, controls, and named owners
 ```
 
-The session deliverable is the completed checklist and its evidence.
+The session deliverable is the completed operator worksheet, with a readiness decision backed by evidence.
 
 <!-- Presenter notes
 Return to the route from slide 2 and mark each stage complete.
-Invite one participant to explain CARE without product jargon.
+Invite one participant to explain CARE without product jargon, then ask another to name the operator for each dependency.
 Close with the next action: resolve every unknown critical checklist item before deployment approval.
 -->
 
 ---
 
-# Appendix: safe local controls
+# Preserve lab data when you stop
 
 Stop while preserving data:
 
@@ -771,16 +769,10 @@ Start again:
 docker compose up -d --wait
 ```
 
-Delete all workshop data:
-
-```bash
-docker compose down -v
-```
-
-`down -v` permanently removes the local database, cache data, and object-storage volume.
+Do **not** run `docker compose down -v` in this exercise. It would permanently remove the local database, cache data, and object-storage volume. Explain the difference before anyone operates an instance.
 
 <!-- Presenter notes
-Use only when needed. Require explicit confirmation before the destructive reset command.
+Have participants reopen a synthetic record and file after restart. Require explicit approval for any destructive reset outside the exercise.
 -->
 
 ---

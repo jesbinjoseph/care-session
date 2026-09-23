@@ -6,13 +6,13 @@ Participants should leave able to:
 
 1. explain the CARE frontend, backend, and dependency roles;
 2. distinguish the two CARE application images;
-3. run and verify the local stack;
-4. verify that the application and its dependencies work;
-5. explain how the same roles become Kubernetes workloads and configuration;
-6. map the same responsibilities to GCP;
-7. make an evidence-based readiness decision.
+3. build, run, and verify a local instance;
+4. demonstrate that a synthetic record and file can be saved and retrieved;
+5. perform a routine health check and diagnose a prepared failure;
+6. choose a hosting model, identify compatible dependencies, and assign operators;
+7. plan a release and recovery, then make an evidence-based readiness decision.
 
-The final artifact is one completed readiness checklist per team.
+The final artifact is one completed [operator worksheet](operator-worksheet.md) per team; the [readiness checklist](readiness-checklist.md) is a separate real-deployment gate.
 
 ## Teaching sequence
 
@@ -22,12 +22,12 @@ Use this order:
 Understand CARE
   → Build the two CARE images
   → Run and verify locally
-  → Introduce the same roles on Kubernetes
-  → Map the same system to GCP
-  → Decide readiness
+  → Practice an operator check, troubleshooting and data preservation
+  → Choose a hosting model and assign owners
+  → Decide readiness; show Kubernetes/GCP only as optional examples
 ```
 
-Do not introduce Kubernetes or managed services before participants can explain the local system.
+Do not introduce Kubernetes or managed services before participants can explain the local system. No one platform is required to host CARE. Do not describe a current production environment in the participant-facing deck.
 
 "Local" means a host controlled for development or training. It could be a workstation, VM, or server. CARE can run without Docker, but that requires the operator to install and manage the language runtimes, dependency services, process startup, and ports on the host. This workshop uses Docker for repeatability and isolation.
 
@@ -40,11 +40,11 @@ Do not introduce Kubernetes or managed services before participants can explain 
 | 20–30 min | Prepare the repositories and inspect the Compose roles |
 | 30–45 min | Build and start the stack; inspect startup order |
 | 45–58 min | Verify health and complete a synthetic workflow |
-| 58–68 min | Inspect health, logs, and one prepared failure |
-| 68–73 min | Introduce Services, Pods, Secrets, and ConfigMaps using the simple Kubernetes architecture |
-| 73–78 min | Map local roles to the current and recommended GCP architectures |
-| 78–87 min | Review production controls and complete the checklist |
-| 87–90 min | Record go, conditional go, or no-go |
+| 58–68 min | Perform the daily check, inspect logs, and diagnose one prepared failure |
+| 68–73 min | Stop and restart safely; verify the synthetic record and file persist |
+| 73–80 min | Choose a hosting model and name owners using the operator worksheet |
+| 80–87 min | Plan a release, rollback, restore test, and readiness evidence |
+| 87–90 min | Record the decision and unanswered critical checks |
 
 For a 60-minute delivery, prepare a running stack in advance and demonstrate the build command without waiting for a clean build.
 
@@ -88,14 +88,13 @@ Do not place secret values in `ADDITIONAL_PLUGS`. Deliver secrets through the ru
 6. Run `docker compose ps -a`.
 7. Show that Beat becomes healthy after migrations and synchronization.
 8. Verify frontend, backend, and Django checks.
-9. Load fixtures and use only synthetic data.
+9. Follow the README's local fixture preparation (temporary Faker install and `testserver` host override), then load fixtures and use only synthetic data.
 10. Complete one synthetic workflow and inspect the relevant health and log evidence.
-11. Open `docs/kubernetes-local-architecture.md` and identify Services, Pods, Secrets, ConfigMaps, and the two image boundaries.
-12. Open `docs/local-to-gcp.svg` and map each role to GCP.
-13. Open `docs/gcp-current-architecture.md` and identify the current GKE workloads and managed dependencies.
-14. Open `docs/gcp-managed-architecture.md` and identify the recommended managed-service change.
-15. Complete `docs/readiness-checklist.md`.
-16. Stop with `docker compose down` and explain that volumes remain.
+11. Perform the operator check and diagnose a prepared failure from the first failing dependency upward.
+12. Stop with `docker compose down`, restart, and check that synthetic data remains; never reset volumes in the exercise.
+13. Use `docs/operator-worksheet.md` to assign hosting, release, monitoring and recovery owners.
+14. If the audience is planning GCP, use `docs/local-to-gcp.md` as a *platform example*; validate storage and Celery broker compatibility separately.
+15. Review `docs/readiness-checklist.md` as a gate for any real deployment, not a lab pass mark.
 
 ## Questions participants should answer
 
@@ -109,7 +108,9 @@ Do not place secret values in `ADDITIONAL_PLUGS`. Deliver secrets through the ru
 - Which dependency stores files through the S3 API?
 - Which dependency transports asynchronous tasks?
 - What evidence shows the application is healthy?
-- Which controls are still required before production?
+- Who owns each dependency, alert and recovery action on the team's chosen platform?
+- What evidence shows data survives a restart, and what additional test proves a backup can be restored?
+- Which controls are still required before a real instance?
 
 ## Presenter prompts by section
 
@@ -129,25 +130,25 @@ Show the frontend build environment and the backend plug list separately.
 
 Ask for evidence, not impressions. A running container does not prove that login, file storage, or background work succeeds.
 
-### GCP transition
+### Hosting decision
 
-Say: "The CARE responsibilities stay the same. GCP changes how those responsibilities are hosted and operated."
+Say: "The CARE responsibilities stay the same. Your team decides where they run and who maintains each one."
 
-First use the simple Kubernetes architecture to introduce Services, Pods, Secrets, and ConfigMaps. Then compare the current OpenTofu implementation with the recommended managed-services target.
+Only when relevant, use the simple Kubernetes architecture and GCP mapping as examples, not the required destination. The frontend API URL is baked in at build time; do not imply a runtime ConfigMap changes it.
 
-Map:
+For a GCP example, discuss candidate mappings and compatibility checks:
 
 ```text
 Local database        → Cloud SQL
 S3-compatible storage → GCS buckets
-Local cache/broker    → Memorystore
-Frontend/backend      → GKE workloads
-Local images          → Artifact Registry
+Local cache/broker    → compatible managed broker after Celery testing
+Frontend/backend      → independent process roles on the selected host
+Local images          → pinned artifacts in a trusted registry
 ```
 
 ### Readiness decision
 
-Require each team to state its decision, strongest evidence, and largest open risk. Treat an unknown critical gate as no-go until evidence exists.
+Require each team to state its decision, strongest evidence, named operator, and largest open risk. Treat an unknown critical gate as no-go until evidence exists.
 
 ## Build-time and runtime configuration
 

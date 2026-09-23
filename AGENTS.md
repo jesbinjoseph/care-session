@@ -104,8 +104,13 @@ Confirm:
 If fixture data is required:
 
 ```bash
-docker compose exec backend python manage.py load_fixtures
+docker compose exec backend python -m pip install --target /tmp/care-fixtures-deps 'Faker==38.2.0'
+docker compose exec -e PYTHONPATH=/tmp/care-fixtures-deps \
+  -e 'DJANGO_ALLOWED_HOSTS=["localhost","127.0.0.1","backend","testserver"]' \
+  backend python manage.py load_fixtures
 ```
+
+Faker is a development-only upstream dependency; this local install is lost when the backend container is recreated. Never load fixtures in a real instance.
 
 ## Troubleshooting order
 

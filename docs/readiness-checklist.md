@@ -1,6 +1,6 @@
 # Deployment readiness checklist
 
-Use this checklist during the workshop. Record command output or screenshots as evidence rather than marking an item complete from memory.
+Use this alongside the [operator worksheet](operator-worksheet.md). Record command output or screenshots as evidence rather than marking an item complete from memory. A workshop pass is not approval for a real deployment.
 
 ## Local workshop readiness
 
@@ -23,9 +23,10 @@ Use this checklist during the workshop. Record command output or screenshots as 
 - [ ] Synthetic fixtures load successfully.
 - [ ] A synthetic clinical workflow succeeds.
 - [ ] A test file can be uploaded and retrieved.
-- [ ] A background task is visible in worker logs.
-- [ ] Stop and restart preserve local data.
+- [ ] A triggered background task completes; otherwise mark unknown.
+- [ ] Stop and restart preserve a specific synthetic record and uploaded test file.
 - [ ] Destructive reset behavior is understood.
+- [ ] An operator can diagnose a prepared failure and name the first failing dependency.
 
 ## Production discussion gates
 
@@ -41,3 +42,9 @@ These are discussion prompts only; the local stack does not satisfy them.
 - [ ] Logs, metrics, alerts, and runbooks are operational.
 - [ ] Rollback and recovery procedures are tested.
 - [ ] Operators and escalation owners are assigned.
+- [ ] CARE/Celery compatibility with the selected cache/task broker is tested.
+- [ ] CARE integration with the selected file-storage service is tested.
+- [ ] The owner and last successful isolated restore test for records and files are recorded.
+- [ ] The migration owner and release verification/rollback trigger are recorded.
+
+For each real-deployment gate, record **owner, evidence link, result, and next test** in the operator worksheet. Unknown critical evidence is a no-go, not an assumed pass.
