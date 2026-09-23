@@ -1,5 +1,24 @@
 # Architecture explanation
 
+```mermaid
+flowchart LR
+    browser[Browser] --> frontend[Frontend<br/>frontend image]
+    browser --> api[Backend API<br/>backend image]
+
+    subgraph backendImage[Shared backend image]
+        api
+        worker[Celery worker]
+        beat[Celery Beat<br/>startup initialization]
+        plugs[Installed CARE plugs]
+    end
+
+    api --> database[(Database)]
+    api --> storage[(S3-compatible storage)]
+    api --> broker[Cache + task broker]
+    worker --> broker
+    beat --> broker
+```
+
 ## Component relationships
 
 CARE's frontend is a browser application. The participant accesses it through port `4000`. The browser sends API requests directly to the backend on port `9000`.
@@ -31,16 +50,9 @@ Backend plugs are Python/Django extensions installed while the shared backend im
 
 Frontend apps can also be loaded through CARE's frontend application configuration, but they are outside the minimal backend-plug demonstration in this repository.
 
-## Data paths
+## Verification responsibilities
 
-| Flow | Path |
-|---|---|
-| Login or clinical request | Browser → frontend → backend → database |
-| Cached lookup | Backend → cache |
-| File upload | Browser → backend → S3-compatible storage |
-| Asynchronous task | Backend → task broker → worker |
-| Scheduled task | Beat → task broker → worker |
-| Plugin API | Browser → frontend → backend plug → normal CARE dependencies |
+Verify that the frontend and API respond, Beat completes initialization, Django checks pass, a synthetic workflow reaches the database, a test file reaches S3-compatible storage, and queued work reaches a worker.
 
 ## Startup order
 

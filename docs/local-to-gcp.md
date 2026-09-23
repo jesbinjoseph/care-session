@@ -2,7 +2,35 @@
 
 The clearest teaching method is to keep the CARE responsibilities unchanged and replace one local platform capability at a time. Participants should recognize the same frontend, backend, worker, Beat, database, cache, storage, and plug roles in both diagrams.
 
-![Local-to-GCP mapping](local-to-gcp.svg)
+```mermaid
+flowchart LR
+    subgraph local[Local environment]
+        compose[Docker Compose]
+        localApp[Frontend + backend roles]
+        localDb[(Database)]
+        localStorage[(S3-compatible storage)]
+        localBroker[Cache + task broker]
+        compose --> localApp
+        localApp --> localDb
+        localApp --> localStorage
+        localApp --> localBroker
+    end
+
+    subgraph gcp[GCP target]
+        gke[GKE workloads]
+        sql[(Cloud SQL)]
+        gcs[(GCS buckets)]
+        memory[Memorystore<br/>after compatibility validation]
+        gke --> sql
+        gke --> gcs
+        gke --> memory
+    end
+
+    localApp -.-> gke
+    localDb -.-> sql
+    localStorage -.-> gcs
+    localBroker -.-> memory
+```
 
 ## The central message
 
@@ -10,7 +38,7 @@ The application architecture does not fundamentally change:
 
 ```text
 Frontend → Backend → data services
-Backend and Beat → Redis → Worker
+Backend and Beat → cache and task broker → Worker
 Plugs extend the shared CARE image
 ```
 
@@ -39,14 +67,7 @@ GCP changes where components run, how users reach them, how identities are assig
 
 ### Step 1 — Prove the local environment
 
-Participants should be able to verify:
-
-1. Browser request to frontend and backend.
-2. Backend query to the database.
-3. Upload from backend to S3-compatible storage.
-4. Task publication to the task broker and execution by a worker.
-5. Beat startup initialization and scheduled-task publication.
-6. Plug code inside the shared backend image.
+Participants should be able to identify every component, explain the two image boundaries, verify application health, confirm database and object-storage behavior with synthetic data, confirm worker activity, and explain Beat-owned startup initialization.
 
 Do not introduce Kubernetes until these roles are understood.
 
@@ -116,30 +137,26 @@ Finish with backup restoration, rollback, failure drills, and named operational 
 
 ## Complete GCP reference architecture
 
-```text
-Users
-  │ HTTPS
-  ▼
-Public DNS
-  ▼
-External HTTPS Load Balancer
-  ▼
-GKE Gateway + HTTPRoutes
-  ├── Frontend Service → Frontend Pods
-  └── Backend Service  → Backend Pods + plug code
-                               ├── Private Cloud SQL
-                               ├── Memorystore Redis → Worker Pods
-                               │           ▲
-                               │           │
-                               │        Beat Pod
-                               └── GCS buckets
+```mermaid
+flowchart LR
+    users[Users] --> dns[Public DNS]
+    dns --> edge[External HTTPS load balancer]
+    edge --> gateway[GKE Gateway + HTTPRoutes]
 
-Supporting controls
-  ├── Artifact Registry
-  ├── Workload Identity
-  ├── Secret Manager + Kubernetes configuration
-  ├── Cloud Logging
-  └── Managed Prometheus and alerts
+    subgraph gke[GKE]
+        gateway --> frontend[Frontend Service + Pods]
+        gateway --> api[Backend Service + API Pods]
+        worker[Worker Pods]
+        beat[Beat Pod]
+    end
+
+    api --> sql[(Cloud SQL)]
+    api --> gcs[(GCS buckets)]
+    api --> memory[Memorystore]
+    worker --> memory
+    beat --> memory
+
+    controls[Artifact Registry<br/>Workload Identity<br/>Secret Manager<br/>Cloud Logging<br/>Managed Prometheus] -.-> gke
 ```
 
 ## Suggested transition exercise
@@ -156,4 +173,4 @@ Give each group the local architecture diagram and a blank GCP diagram. Ask them
 
 The goal is not to memorize GCP products. It is to recognize that production architecture wraps the same CARE runtime with managed networking, identity, durability, scaling, observability, and recovery controls.
 
-The complete recommended target is shown in [Managed-services GCP architecture](gcp-managed-architecture.md). The current infrastructure repository deploys Redis inside GKE; moving it to Memorystore is a recommended architectural change and requires a separately tested migration.
+The complete recommended target is shown in [Managed-services GCP architecture](gcp-managed-architecture.md). The current infrastructure repository deploys the cache and task broker inside GKE; moving that capability to Memorystore requires compatibility validation and a separately tested migration.

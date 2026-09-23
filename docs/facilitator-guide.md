@@ -8,8 +8,9 @@ Participants should leave able to:
 2. distinguish the two CARE application images;
 3. run and verify the local stack;
 4. verify that the application and its dependencies work;
-5. map the same responsibilities to GCP;
-6. make an evidence-based readiness decision.
+5. explain how the same roles become Kubernetes workloads and configuration;
+6. map the same responsibilities to GCP;
+7. make an evidence-based readiness decision.
 
 The final artifact is one completed readiness checklist per team.
 
@@ -21,11 +22,12 @@ Use this order:
 Understand CARE
   → Build the two CARE images
   → Run and verify locally
+  → Introduce the same roles on Kubernetes
   → Map the same system to GCP
   → Decide readiness
 ```
 
-Do not introduce GKE or managed services before participants can explain the local system.
+Do not introduce Kubernetes or managed services before participants can explain the local system.
 
 "Local" means a host controlled for development or training. It could be a workstation, VM, or server. CARE can run without Docker, but that requires the operator to install and manage the language runtimes, dependency services, process startup, and ports on the host. This workshop uses Docker for repeatability and isolation.
 
@@ -39,7 +41,8 @@ Do not introduce GKE or managed services before participants can explain the loc
 | 30–45 min | Build and start the stack; inspect startup order |
 | 45–58 min | Verify health and complete a synthetic workflow |
 | 58–68 min | Inspect health, logs, and one prepared failure |
-| 68–78 min | Map local roles to the managed-services GCP architecture |
+| 68–73 min | Introduce Services, Pods, Secrets, and ConfigMaps using the simple Kubernetes architecture |
+| 73–78 min | Map local roles to the current and recommended GCP architectures |
 | 78–87 min | Review production controls and complete the checklist |
 | 87–90 min | Record go, conditional go, or no-go |
 
@@ -87,10 +90,12 @@ Do not place secret values in `ADDITIONAL_PLUGS`. Deliver secrets through the ru
 8. Verify frontend, backend, and Django checks.
 9. Load fixtures and use only synthetic data.
 10. Complete one synthetic workflow and inspect the relevant health and log evidence.
-11. Open `docs/local-to-gcp.svg` and map each role to GCP.
-12. Open `docs/gcp-managed-architecture.svg` and identify the GKE workloads and managed dependencies.
-13. Complete `docs/readiness-checklist.md`.
-14. Stop with `docker compose down` and explain that volumes remain.
+11. Open `docs/kubernetes-local-architecture.md` and identify Services, Pods, Secrets, ConfigMaps, and the two image boundaries.
+12. Open `docs/local-to-gcp.svg` and map each role to GCP.
+13. Open `docs/gcp-current-architecture.md` and identify the current GKE workloads and managed dependencies.
+14. Open `docs/gcp-managed-architecture.md` and identify the recommended managed-service change.
+15. Complete `docs/readiness-checklist.md`.
+16. Stop with `docker compose down` and explain that volumes remain.
 
 ## Questions participants should answer
 
@@ -127,6 +132,8 @@ Ask for evidence, not impressions. A running container does not prove that login
 ### GCP transition
 
 Say: "The CARE responsibilities stay the same. GCP changes how those responsibilities are hosted and operated."
+
+First use the simple Kubernetes architecture to introduce Services, Pods, Secrets, and ConfigMaps. Then compare the current OpenTofu implementation with the recommended managed-services target.
 
 Map:
 

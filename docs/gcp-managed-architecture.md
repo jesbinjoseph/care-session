@@ -2,7 +2,27 @@
 
 This design keeps only CARE application processes in GKE and moves durable or operational dependencies to managed GCP services.
 
-![Recommended CARE GCP architecture](gcp-managed-architecture.svg)
+```mermaid
+flowchart LR
+    users[Users] --> dns[Cloud DNS]
+    dns --> edge[External HTTPS load balancer]
+    edge --> gateway[GKE Gateway + HTTPRoutes]
+
+    subgraph gke[GKE]
+        gateway --> frontend[Frontend Service + Pods<br/>frontend image]
+        gateway --> api[Backend Service + API Pods<br/>backend image]
+        worker[Worker Pods<br/>backend image]
+        beat[Beat Pod<br/>backend image]
+    end
+
+    api --> sql[(Cloud SQL)]
+    api --> gcs[(GCS buckets)]
+    api --> memory[Memorystore]
+    worker --> memory
+    beat --> memory
+
+    controls[Artifact Registry<br/>Workload Identity<br/>Secret Manager + KMS<br/>Cloud Logging<br/>Managed Prometheus] -.-> gke
+```
 
 ## Design goal
 
@@ -15,18 +35,9 @@ The primary workload is CARE:
 
 GKE runs and scales those application processes. GCP manages the database, object storage, cache and broker, secrets, encryption, image registry, ingress, logging, and metrics.
 
-## Core request path
+## Edge and routing
 
-```text
-Users
-  → Cloud DNS
-  → External HTTPS Load Balancer
-  → GKE Gateway and HTTPRoutes
-  → Frontend or Backend Kubernetes Service
-  → CARE Pods
-```
-
-The frontend and API have separate routes. TLS terminates through the Gateway listener. Cloud Armor can be attached as an optional edge policy.
+The frontend and API have separate HTTPRoutes. TLS terminates through the Gateway listener. Cloud Armor can be attached as an optional edge policy.
 
 ## CARE workloads in GKE
 
@@ -63,16 +74,16 @@ Backend API, workers, and Beat must use the same plug-enabled CARE image.
 
 ## Relationship to the current infrastructure repository
 
-The current infrastructure already provides the Gateway/GKE baseline, private Cloud SQL, GCS buckets, Artifact Registry, KMS, Workload Identity, Managed Prometheus, and Cloud Logging.
+The current infrastructure provides the Gateway/GKE baseline, private Cloud SQL, GCS buckets, KMS, Workload Identity, Managed Prometheus, and Cloud Logging. Runtime image locations are supplied through Helm configuration.
 
-The material architectural change in this recommended target is Redis:
+The material architectural change in this recommended target is the cache and task broker:
 
 ```text
-Current repository: Redis Helm release inside GKE
-Recommended target: Memorystore for Redis over private networking
+Current repository: Helm-managed workload inside GKE
+Recommended target: Memorystore over private networking
 ```
 
-Migrating Redis requires updating the broker/cache endpoints, firewall and private network access, health monitoring, capacity configuration, and a tested cutover plan. It should be implemented separately from the diagram change.
+The change requires CARE and Celery compatibility validation, updated broker/cache endpoints, private network access, health monitoring, capacity configuration, and a tested cutover plan.
 
 ## Optional extensions
 

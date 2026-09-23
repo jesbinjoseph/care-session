@@ -1,22 +1,20 @@
 # CARE local deployment session
 
-A training repository for building and running a complete CARE instance locally with Docker Compose. The stack is intentionally small enough to teach, while retaining the components required to explain CARE's request, data, and background-task flows.
+A training repository for building and running a complete CARE instance locally with Docker Compose. The stack is intentionally small enough to teach while retaining the CARE application roles and supporting dependencies.
 
-![CARE local architecture](docs/architecture.svg)
+See [Architecture explanation](docs/architecture.md) for the Markdown and Mermaid view of the local system.
 
 ## Teaching progression
 
-Start with the local diagram until participants can trace browser requests, database access, file uploads, queued tasks, scheduled tasks, and plugs. Then preserve those application flows while replacing each local platform capability with its GCP equivalent:
+Start with the local diagram until participants can explain the two CARE images, runtime roles, and dependency responsibilities. Then introduce the same application model on a simple Kubernetes cluster:
 
-![CARE local-to-GCP mapping](docs/local-to-gcp.svg)
+- [CARE on a simple Kubernetes cluster](docs/kubernetes-local-architecture.md)
 
-The detailed progression is documented in [From local Compose to GCP](docs/local-to-gcp.md).
+Finally, replace each local platform capability with its GCP equivalent using [From local Compose to GCP](docs/local-to-gcp.md).
 
-The recommended production target keeps CARE processes in GKE and moves PostgreSQL, object storage, and Redis to managed GCP services:
+The [current OpenTofu-managed GCP architecture](docs/gcp-current-architecture.md) keeps the CARE application roles recognizable while moving durable data to managed GCP services. The cache and task broker remain a Helm-managed workload inside GKE.
 
-![Recommended managed-services GCP architecture](docs/gcp-managed-architecture.svg)
-
-See [Recommended managed-services GCP architecture](docs/gcp-managed-architecture.md) for the request path, workload responsibilities, managed-service mapping, networking, identity, and production checks.
+The [recommended managed-services GCP architecture](docs/gcp-managed-architecture.md) goes one step further by moving the compatible cache and broker capability to a managed GCP service.
 
 ## What runs
 
@@ -272,8 +270,12 @@ Use the [guided CARE deployment workshop](https://jesbinjoseph.github.io/care-se
 
 ## Additional material
 
+- [Session 3 Markdown slides](docs/session-3-slides.md)
 - [Workshop website source](docs/index.html)
 - [Architecture explanation](docs/architecture.md)
+- [CARE on a simple Kubernetes cluster](docs/kubernetes-local-architecture.md)
+- [Current OpenTofu-managed GCP architecture](docs/gcp-current-architecture.md)
+- [Recommended managed-services GCP architecture](docs/gcp-managed-architecture.md)
 - [From local Compose to GCP](docs/local-to-gcp.md)
 - [Facilitator guide](docs/facilitator-guide.md)
 - [Deployment readiness checklist](docs/readiness-checklist.md)
