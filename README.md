@@ -22,7 +22,7 @@ The detailed progression is documented in [From local Compose to GCP](docs/local
 | `beat` | Startup initialization and scheduled-task dispatch | Same image as backend |
 | `db` | PostgreSQL application database | `postgres:17-alpine` |
 | `redis` | Cache and Celery message broker | `redis:8-alpine` |
-| `minio` | Local S3-compatible object storage | `pgsty/silo` |
+| `silo` | Local S3-compatible object storage | `pgsty/silo` |
 | Plugs | Backend extensions | Installed into the backend image at build time |
 
 ## Why the backend processes share one image
@@ -68,7 +68,7 @@ cp .env.example .env
 cp frontend.env.production.local care_fe/.env.production.local
 ```
 
-The frontend setting points the participant's browser to `http://localhost:9000`. Container-to-container dependencies use Compose service names such as `db`, `redis`, and `minio`.
+The frontend setting points the participant's browser to `http://localhost:9000`. Container-to-container dependencies use Compose service names such as `db`, `redis`, and `silo`.
 
 ## 4. Review the resolved stack
 
@@ -82,7 +82,7 @@ Expected services:
 ```text
 db
 redis
-minio
+silo
 backend
 worker
 beat
@@ -113,7 +113,7 @@ Expected endpoints:
 | CARE frontend | http://localhost:4000 |
 | Backend health | http://localhost:9000/ping/ |
 | API documentation | http://localhost:9000/swagger/ |
-| MinIO console | http://localhost:9001 |
+| Silo object-storage console | http://localhost:9001 |
 
 ## 7. Load synthetic workshop data
 
@@ -134,13 +134,13 @@ Browser → frontend → backend → PostgreSQL
 ### File upload
 
 ```text
-Browser → backend → MinIO
+Browser → backend → Silo
 ```
 
 ### Background task
 
 ```text
-Backend → Redis → worker → PostgreSQL or MinIO
+Backend → Redis → worker → PostgreSQL or Silo
 ```
 
 ### Scheduled task
@@ -154,7 +154,7 @@ Inspect logs while demonstrating:
 ```bash
 docker compose logs -f frontend backend
 docker compose logs -f worker beat
-docker compose logs -f db redis minio
+docker compose logs -f db redis silo
 ```
 
 ## Backend plugs
@@ -222,7 +222,7 @@ docker compose ps -a
 docker compose logs --tail=200 <service>
 ```
 
-Check dependencies in this order: `db`, `redis`, `minio`, `beat`, `backend`, `worker`, and `frontend`.
+Check dependencies in this order: `db`, `redis`, `silo`, `beat`, `backend`, `worker`, and `frontend`.
 
 ### Rebuild after source or plug changes
 

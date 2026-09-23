@@ -67,7 +67,7 @@ The service list must contain exactly these runtime roles:
 
 - `db`
 - `redis`
-- `minio`
+- `silo`
 - `beat`
 - `backend`
 - `worker`
@@ -94,7 +94,7 @@ docker compose exec backend python manage.py check
 
 Confirm:
 
-- PostgreSQL, Redis, and MinIO are healthy.
+- PostgreSQL, Redis, and Silo are healthy.
 - Beat is healthy.
 - Backend, worker, and frontend are running.
 - Backend health returns success.
@@ -114,7 +114,7 @@ Inspect dependencies from the bottom up:
 ```bash
 docker compose logs --tail=200 db
 docker compose logs --tail=200 redis
-docker compose logs --tail=200 minio
+docker compose logs --tail=200 silo
 docker compose logs --tail=200 beat
 docker compose logs --tail=200 backend
 docker compose logs --tail=200 worker

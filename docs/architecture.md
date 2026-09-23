@@ -8,7 +8,7 @@ The backend owns synchronous application logic and communicates with three local
 
 1. **PostgreSQL** stores durable application and clinical records.
 2. **Redis** provides caching and transports Celery tasks.
-3. **MinIO** provides local object storage for uploaded files.
+3. **Silo** provides local S3-compatible object storage for uploaded files.
 
 The backend, worker, and Beat scheduler are built from the same CARE source and image:
 
@@ -28,14 +28,14 @@ Frontend apps can also be loaded through CARE's frontend application configurati
 |---|---|
 | Login or clinical request | Browser → frontend → backend → PostgreSQL |
 | Cached lookup | Backend → Redis |
-| File upload | Browser → backend → MinIO |
+| File upload | Browser → backend → Silo |
 | Asynchronous task | Backend → Redis → worker |
 | Scheduled task | Beat → Redis → worker |
 | Plugin API | Browser → frontend → backend plug → normal CARE dependencies |
 
 ## Startup order
 
-1. PostgreSQL, Redis, and MinIO become healthy.
+1. PostgreSQL, Redis, and Silo become healthy.
 2. Beat applies migrations and synchronization commands, then becomes healthy.
 3. Backend and worker start from the shared CARE image.
 4. Frontend starts after the backend is healthy.

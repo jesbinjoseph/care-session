@@ -34,14 +34,15 @@ services:
       timeout: 5s
       retries: 20
 
-  minio:
+  silo:
     image: docker.io/pgsty/silo:latest
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: siloadmin
+      MINIO_ROOT_PASSWORD: siloadmin
       AWS_DEFAULT_REGION: ap-south-1
     volumes:
-      - minio-data:/data
+      - silo-data:/data
+      # Silo provides a MinIO-compatible API; reuse CARE's upstream bucket setup scripts.
       - ./care/docker/minio/init-script.sh:/init-script.sh:ro
       - ./care/docker/minio/entrypoint.sh:/entrypoint.sh:ro
     entrypoint: ["/entrypoint.sh"]
@@ -62,7 +63,7 @@ services:
     depends_on:
       beat:
         condition: service_healthy
-      minio:
+      silo:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:9000/ping/"]
@@ -113,4 +114,4 @@ services:
 volumes:
   postgres-data:
   redis-data:
-  minio-data:
+  silo-data:

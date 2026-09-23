@@ -54,7 +54,7 @@ Participants should leave able to identify every CARE runtime component, explain
 After participants can explain every local flow, open `docs/local-to-gcp.svg` and replace one platform layer at a time:
 
 1. Compose processes become GKE Deployments and Services.
-2. PostgreSQL, MinIO, and Redis become production data services.
+2. PostgreSQL, Silo, and Redis become production data services.
 3. Local ports become DNS, HTTPS load balancing, GKE Gateway, and HTTPRoutes.
 4. `.env` and local images become managed configuration, Workload Identity, and promoted registry artifacts.
 5. Local status and logs become centralized telemetry, alerts, backups, and recovery evidence.

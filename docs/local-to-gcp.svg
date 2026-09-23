@@ -46,7 +46,7 @@
 
   <!-- Row 3 -->
   <rect x="75" y="385" width="335" height="80" rx="10" fill="rgba(76,29,149,.45)" stroke="#a78bfa" stroke-width="2"/>
-  <text x="242" y="417" class="name">PostgreSQL + MinIO + Redis</text><text x="242" y="441" class="detail">Local stateful dependencies</text>
+  <text x="242" y="417" class="name">PostgreSQL + Silo + Redis</text><text x="242" y="441" class="detail">Local stateful dependencies</text>
   <rect x="525" y="385" width="350" height="80" rx="10" fill="rgba(76,29,149,.45)" stroke="#a78bfa" stroke-width="2"/>
   <text x="700" y="417" class="name">Data and queue contracts</text><text x="700" y="441" class="detail">Endpoints change; responsibilities remain</text>
   <rect x="990" y="375" width="335" height="100" rx="10" fill="rgba(76,29,149,.45)" stroke="#a78bfa" stroke-width="2"/>

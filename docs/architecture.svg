@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
   <title id="title">CARE local learning architecture</title>
-  <desc id="desc">Browser connects to frontend and backend. Backend, worker and beat share a CARE image with plugs. PostgreSQL, Redis and MinIO provide data services. Beat performs startup migrations and synchronization.</desc>
+  <desc id="desc">Browser connects to frontend and backend. Backend, worker and beat share a CARE image with plugs. PostgreSQL, Redis and Silo provide data services. Beat performs startup migrations and synchronization.</desc>
   <defs>
     <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
       <path d="M40 0H0V40" fill="none" stroke="#1e293b" stroke-width="1"/>
@@ -90,10 +90,10 @@
   <text x="1040" y="259" class="detail">Durable application data</text>
   <text x="1040" y="279" class="detail">named volume</text>
 
-  <!-- MinIO -->
+  <!-- Silo -->
   <rect x="930" y="315" width="220" height="100" rx="10" fill="#0f172a"/>
   <rect x="930" y="315" width="220" height="100" rx="10" fill="rgba(120,53,15,.4)" stroke="#fbbf24" stroke-width="2"/>
-  <text x="1040" y="352" class="name">MinIO</text>
+  <text x="1040" y="352" class="name">Silo</text>
   <text x="1040" y="379" class="detail">Local object storage</text>
   <text x="1040" y="399" class="detail">localhost:9001</text>
 

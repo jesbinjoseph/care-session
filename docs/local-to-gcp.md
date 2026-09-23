@@ -28,7 +28,7 @@ GCP changes where components run, how users reach them, how identities are assig
 | Backend plugs | Plugs baked into the promoted backend image | API, worker, and Beat must use the same plug-enabled artifact. |
 | `db` container | Private Cloud SQL for PostgreSQL | The database becomes managed, durable, backed up, and privately reachable. |
 | `redis` container | Redis service selected by the platform | The endpoint changes; queue and cache semantics remain. |
-| `minio` container | Google Cloud Storage buckets | The S3-compatible local teaching dependency becomes durable object storage. |
+| `silo` container | Google Cloud Storage buckets | The S3-compatible local teaching dependency becomes durable object storage. |
 | `.env` file | Secret Manager, Kubernetes Secrets, and ConfigMaps | Configuration is separated from images and access is controlled. |
 | Local image build | CI build and Artifact Registry | Build once, scan, pin, approve, and promote the image. |
 | `localhost` ports | DNS, HTTPS load balancer, GKE Gateway, and HTTPRoutes | Public traffic receives TLS and controlled routing. |
@@ -43,7 +43,7 @@ Participants should be able to trace:
 
 1. Browser request to frontend and backend.
 2. Backend query to PostgreSQL.
-3. Upload from backend to MinIO.
+3. Upload from backend to Silo.
 4. Task publication to Redis and execution by a worker.
 5. Beat startup initialization and scheduled-task publication.
 6. Plug code inside the shared backend image.
@@ -69,7 +69,7 @@ Replace one dependency at a time:
 
 ```text
 PostgreSQL container → private Cloud SQL
-MinIO                → Cloud Storage
+Silo                 → Cloud Storage
 local Redis          → selected production Redis service
 ```
 

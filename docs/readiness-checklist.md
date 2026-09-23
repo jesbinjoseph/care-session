@@ -13,7 +13,7 @@ Use this checklist during the workshop. Record command output or screenshots as 
 - [ ] `docker compose config` succeeds.
 - [ ] PostgreSQL is healthy.
 - [ ] Redis is healthy.
-- [ ] MinIO is healthy.
+- [ ] Silo is healthy.
 - [ ] Beat completed migrations and synchronization and is healthy.
 - [ ] Backend health endpoint succeeds.
 - [ ] Frontend returns an HTTP response.
