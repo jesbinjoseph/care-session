@@ -257,8 +257,13 @@ This repository is a learning environment, not a production deployment template.
 - Tested backup, restore, rollback, and recovery procedures
 - Pinned and approved release artifacts
 
+## Workshop website
+
+Use the [guided CARE deployment workshop](https://jesbinjoseph.github.io/care-session/) during the session. It includes presenter mode, copyable commands, local verification, architecture diagrams, the local-to-GCP transition, and the production readiness gate.
+
 ## Additional material
 
+- [Workshop website source](docs/index.html)
 - [Architecture explanation](docs/architecture.md)
 - [From local Compose to GCP](docs/local-to-gcp.md)
 - [Facilitator guide](docs/facilitator-guide.md)
