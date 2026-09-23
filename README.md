@@ -12,6 +12,12 @@ Start with the local diagram until participants can trace browser requests, data
 
 The detailed progression is documented in [From local Compose to GCP](docs/local-to-gcp.md).
 
+The recommended production target keeps CARE processes in GKE and moves PostgreSQL, object storage, and Redis to managed GCP services:
+
+![Recommended managed-services GCP architecture](docs/gcp-managed-architecture.svg)
+
+See [Recommended managed-services GCP architecture](docs/gcp-managed-architecture.md) for the request path, workload responsibilities, managed-service mapping, networking, identity, and production checks.
+
 ## What runs
 
 | Service | Purpose | Source or image |

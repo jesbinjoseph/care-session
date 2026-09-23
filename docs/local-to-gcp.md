@@ -27,7 +27,7 @@ GCP changes where components run, how users reach them, how identities are assig
 | `beat` container | Single-replica GKE Beat Deployment | Beat still initializes CARE and schedules tasks; only one active scheduler is required. |
 | Backend plugs | Plugs baked into the promoted backend image | API, worker, and Beat must use the same plug-enabled artifact. |
 | `db` container | Private Cloud SQL for PostgreSQL | The database becomes managed, durable, backed up, and privately reachable. |
-| `redis` container | Redis service selected by the platform | The endpoint changes; queue and cache semantics remain. |
+| `redis` container | Memorystore for Redis over private networking | GCP operates the cache and broker while CARE keeps Redis queue and cache semantics. |
 | `silo` container | Google Cloud Storage buckets | The S3-compatible local teaching dependency becomes durable object storage. |
 | `.env` file | Secret Manager, Kubernetes Secrets, and ConfigMaps | Configuration is separated from images and access is controlled. |
 | Local image build | CI build and Artifact Registry | Build once, scan, pin, approve, and promote the image. |
@@ -70,7 +70,7 @@ Replace one dependency at a time:
 ```text
 PostgreSQL container → private Cloud SQL
 Silo                 → Cloud Storage
-local Redis          → selected production Redis service
+local Redis          → Memorystore for Redis
 ```
 
 Discuss private connectivity, credentials, backups, retention, restoration, and failure behavior for each dependency.
@@ -128,7 +128,7 @@ GKE Gateway + HTTPRoutes
   ├── Frontend Service → Frontend Pods
   └── Backend Service  → Backend Pods + plug code
                                ├── Private Cloud SQL
-                               ├── Redis → Worker Pods
+                               ├── Memorystore Redis → Worker Pods
                                │           ▲
                                │           │
                                │        Beat Pod
@@ -155,3 +155,5 @@ Give each group the local architecture diagram and a blank GCP diagram. Ask them
 7. Explain which application flows stayed unchanged.
 
 The goal is not to memorize GCP products. It is to recognize that production architecture wraps the same CARE runtime with managed networking, identity, durability, scaling, observability, and recovery controls.
+
+The complete recommended target is shown in [Managed-services GCP architecture](gcp-managed-architecture.md). The current infrastructure repository deploys Redis inside GKE; moving it to Memorystore is a recommended architectural change and requires a separately tested migration.

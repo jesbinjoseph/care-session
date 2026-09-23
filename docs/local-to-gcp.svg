@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760" role="img" aria-labelledby="title desc">
   <title id="title">CARE local Compose to GCP architecture mapping</title>
-  <desc id="desc">A side-by-side mapping from local CARE services to GCP production services using GKE Gateway, GKE workloads, Cloud SQL, Cloud Storage, Workload Identity, and observability.</desc>
+  <desc id="desc">A side-by-side mapping from local CARE services to a managed-services GCP target using GKE Gateway, GKE workloads, Cloud SQL, Cloud Storage, Memorystore, Workload Identity, and observability.</desc>
   <defs>
     <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1e293b"/></pattern>
     <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#94a3b8"/></marker>
@@ -50,7 +50,7 @@
   <rect x="525" y="385" width="350" height="80" rx="10" fill="rgba(76,29,149,.45)" stroke="#a78bfa" stroke-width="2"/>
   <text x="700" y="417" class="name">Data and queue contracts</text><text x="700" y="441" class="detail">Endpoints change; responsibilities remain</text>
   <rect x="990" y="375" width="335" height="100" rx="10" fill="rgba(76,29,149,.45)" stroke="#a78bfa" stroke-width="2"/>
-  <text x="1157" y="407" class="name">Private Cloud SQL</text><text x="1157" y="431" class="detail">Cloud Storage buckets</text><text x="1157" y="453" class="detail">Production Redis service</text>
+  <text x="1157" y="407" class="name">Private Cloud SQL</text><text x="1157" y="431" class="detail">Cloud Storage buckets</text><text x="1157" y="453" class="detail">Memorystore for Redis</text>
 
   <!-- Row 4 -->
   <rect x="75" y="490" width="335" height="80" rx="10" fill="rgba(136,19,55,.4)" stroke="#fb7185" stroke-width="2"/>

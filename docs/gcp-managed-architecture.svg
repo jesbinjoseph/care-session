@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="900" viewBox="0 0 1500 900" role="img" aria-labelledby="title desc">
+  <title id="title">Recommended managed-services architecture for CARE on GCP</title>
+  <desc id="desc">Users reach CARE through Cloud DNS, an external HTTPS load balancer, and GKE Gateway routes. GKE runs the frontend, backend, workers, Beat, and plugs. Managed dependencies are Cloud SQL, Memorystore, Cloud Storage, Secret Manager, KMS, Artifact Registry, Cloud Logging, and Managed Prometheus.</desc>
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1e293b" stroke-width="1"/></pattern>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#94a3b8"/></marker>
+    <marker id="taskArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#fb923c"/></marker>
+    <style>
+      .title{font:700 25px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#f8fafc}.sub{font:14px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#94a3b8}.boundary{font:700 13px ui-monospace,SFMono-Regular,Menlo,monospace}.name{font:700 15px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#f8fafc;text-anchor:middle}.detail{font:11px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#cbd5e1;text-anchor:middle}.label{font:10px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#94a3b8;text-anchor:middle}.flow{fill:none;stroke:#94a3b8;stroke-width:2;marker-end:url(#arrow)}.task{fill:none;stroke:#fb923c;stroke-width:2;marker-end:url(#taskArrow)}.identity{fill:none;stroke:#fb7185;stroke-width:1.8;stroke-dasharray:6 5;marker-end:url(#arrow)}.control{fill:none;stroke:#fbbf24;stroke-width:1.8;stroke-dasharray:5 5;marker-end:url(#arrow)}
+    </style>
+  </defs>
+
+  <rect width="1500" height="900" rx="18" fill="#020617"/><rect width="1500" height="900" rx="18" fill="url(#grid)"/>
+  <text x="46" y="48" class="title">CARE on GCP — managed-services target architecture</text>
+  <text x="46" y="75" class="sub">GKE runs CARE application processes; managed GCP services operate the dependencies.</text>
+
+  <!-- Boundaries -->
+  <rect x="35" y="105" width="1430" height="625" rx="18" fill="rgba(120,53,15,.04)" stroke="#fbbf24" stroke-width="2" stroke-dasharray="9 6"/>
+  <text x="55" y="132" class="boundary" fill="#fbbf24">GCP PROJECT / REGION</text>
+  <rect x="430" y="245" width="640" height="455" rx="16" fill="rgba(6,78,59,.06)" stroke="#34d399" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="450" y="272" class="boundary" fill="#34d399">PRIVATE GKE CLUSTER + CARE NAMESPACE</text>
+  <rect x="1110" y="245" width="320" height="455" rx="16" fill="rgba(76,29,149,.06)" stroke="#a78bfa" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="1130" y="272" class="boundary" fill="#a78bfa">MANAGED DATA SERVICES</text>
+
+  <!-- Connections behind components -->
+  <path class="flow" d="M155 205H245"/><path class="flow" d="M385 205H485"/><path class="flow" d="M665 205H750"/>
+  <path class="flow" d="M850 250V315H600"/><path class="flow" d="M850 250V315H900"/>
+  <path class="flow" d="M600 395V440H610"/><path class="flow" d="M900 395V440H890"/>
+  <path class="flow" d="M1000 505H1020V350H1140"/>
+  <path class="flow" d="M1000 526H1040V475H1140"/>
+  <path class="flow" d="M1000 547H1060V605H1140"/>
+  <path class="task" d="M965 622H1080V495H1140"/>
+  <path class="task" d="M1140 455H1100V575H640V590"/>
+  <path class="control" d="M250 805V740H570V690"/>
+  <path class="identity" d="M575 805V740H690V690"/>
+  <path class="identity" d="M875 805V740H810V690"/>
+  <path class="control" d="M930 690V740H1190V770"/>
+
+  <text x="200" y="194" class="label">DNS</text><text x="435" y="194" class="label">HTTPS :443</text><text x="707" y="194" class="label">Gateway</text>
+  <text x="600" y="302" class="label">web route</text><text x="910" y="302" class="label">API route</text>
+  <text x="1080" y="337" class="label">private SQL</text><text x="1080" y="442" class="label">task queue</text><text x="1080" y="592" class="label">object API</text>
+
+  <!-- Public edge -->
+  <rect x="55" y="165" width="100" height="80" rx="10" fill="rgba(30,41,59,.7)" stroke="#94a3b8" stroke-width="2"/><text x="105" y="198" class="name">Users</text><text x="105" y="222" class="detail">Browser</text>
+  <rect x="245" y="165" width="140" height="80" rx="10" fill="rgba(120,53,15,.35)" stroke="#fbbf24" stroke-width="2"/><text x="315" y="198" class="name">Cloud DNS</text><text x="315" y="222" class="detail">Public hostnames</text>
+  <rect x="485" y="155" width="180" height="100" rx="10" fill="rgba(120,53,15,.35)" stroke="#fbbf24" stroke-width="2"/><text x="575" y="188" class="name">External HTTPS LB</text><text x="575" y="212" class="detail">TLS + static IP</text><text x="575" y="234" class="detail">Cloud Armor optional</text>
+  <rect x="750" y="155" width="200" height="100" rx="10" fill="rgba(120,53,15,.35)" stroke="#fbbf24" stroke-width="2"/><text x="850" y="188" class="name">GKE Gateway</text><text x="850" y="212" class="detail">Regional external</text><text x="850" y="234" class="detail">HTTPRoutes</text>
+
+  <!-- GKE workloads -->
+  <rect x="475" y="315" width="250" height="80" rx="10" fill="rgba(8,51,68,.55)" stroke="#22d3ee" stroke-width="2"/><text x="600" y="347" class="name">Frontend Service + Pods</text><text x="600" y="372" class="detail">CARE web application</text>
+  <rect x="790" y="315" width="220" height="80" rx="10" fill="rgba(6,78,59,.5)" stroke="#34d399" stroke-width="2"/><text x="900" y="347" class="name">Backend Service</text><text x="900" y="372" class="detail">CARE API route</text>
+
+  <rect x="500" y="440" width="500" height="230" rx="14" fill="rgba(6,78,59,.08)" stroke="#34d399" stroke-width="2"/>
+  <text x="520" y="465" class="boundary" fill="#34d399">SHARED PLUG-ENABLED CARE IMAGE</text>
+  <rect x="535" y="485" width="210" height="82" rx="9" fill="rgba(6,78,59,.5)" stroke="#34d399" stroke-width="2"/><text x="640" y="517" class="name">Backend API Pods</text><text x="640" y="542" class="detail">stateless replicas</text>
+  <rect x="790" y="485" width="175" height="82" rx="9" fill="rgba(136,19,55,.4)" stroke="#fb7185" stroke-width="2"/><text x="877" y="517" class="name">CARE Plugs</text><text x="877" y="542" class="detail">built into image</text>
+  <rect x="535" y="590" width="210" height="65" rx="9" fill="rgba(251,146,60,.3)" stroke="#fb923c" stroke-width="2"/><text x="640" y="618" class="name">Celery Workers</text><text x="640" y="641" class="detail">independent scaling</text>
+  <rect x="790" y="590" width="175" height="65" rx="9" fill="rgba(251,146,60,.3)" stroke="#fb923c" stroke-width="2"/><text x="877" y="618" class="name">Celery Beat</text><text x="877" y="641" class="detail">single replica</text>
+
+  <!-- Managed dependencies -->
+  <rect x="1140" y="305" width="255" height="90" rx="10" fill="rgba(76,29,149,.5)" stroke="#a78bfa" stroke-width="2"/><text x="1267" y="338" class="name">Cloud SQL PostgreSQL</text><text x="1267" y="362" class="detail">private IP • backups • PITR</text><text x="1267" y="380" class="detail">HA / replica as required</text>
+  <rect x="1140" y="430" width="255" height="90" rx="10" fill="rgba(251,146,60,.3)" stroke="#fb923c" stroke-width="2"/><text x="1267" y="463" class="name">Memorystore Redis</text><text x="1267" y="487" class="detail">cache + Celery broker</text><text x="1267" y="505" class="detail">private endpoint</text>
+  <rect x="1140" y="560" width="255" height="90" rx="10" fill="rgba(120,53,15,.35)" stroke="#fbbf24" stroke-width="2"/><text x="1267" y="593" class="name">Cloud Storage</text><text x="1267" y="617" class="detail">patient + facility buckets</text><text x="1267" y="635" class="detail">IAM • lifecycle • encryption</text>
+
+  <!-- Platform controls -->
+  <rect x="60" y="770" width="280" height="90" rx="10" fill="rgba(120,53,15,.35)" stroke="#fbbf24" stroke-width="2"/><text x="200" y="803" class="name">Artifact Registry</text><text x="200" y="827" class="detail">pinned frontend + backend images</text><text x="200" y="845" class="detail">CI promotion by digest</text>
+  <rect x="380" y="770" width="280" height="90" rx="10" fill="rgba(136,19,55,.4)" stroke="#fb7185" stroke-width="2"/><text x="520" y="803" class="name">Secret Manager + KMS</text><text x="520" y="827" class="detail">runtime secrets + encryption keys</text><text x="520" y="845" class="detail">rotation and access control</text>
+  <rect x="700" y="770" width="280" height="90" rx="10" fill="rgba(136,19,55,.4)" stroke="#fb7185" stroke-width="2"/><text x="840" y="803" class="name">Workload Identity</text><text x="840" y="827" class="detail">least-privilege Pod access</text><text x="840" y="845" class="detail">no service-account key files</text>
+  <rect x="1020" y="770" width="400" height="90" rx="10" fill="rgba(30,41,59,.75)" stroke="#94a3b8" stroke-width="2"/><text x="1220" y="803" class="name">Cloud Logging + Managed Prometheus</text><text x="1220" y="827" class="detail">logs • metrics • dashboards • alerts</text><text x="1220" y="845" class="detail">operational evidence and runbooks</text>
+</svg>
