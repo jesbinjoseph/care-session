@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760" role="img" aria-labelledby="title desc">
+  <title id="title">CARE local Compose to GCP architecture mapping</title>
+  <desc id="desc">A side-by-side mapping from local CARE services to GCP production services using GKE Gateway, GKE workloads, Cloud SQL, Cloud Storage, Workload Identity, and observability.</desc>
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1e293b"/></pattern>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#94a3b8"/></marker>
+    <style>
+      .title{font:700 25px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#f8fafc}.sub{font:14px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#94a3b8}.head{font:700 17px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#f8fafc;text-anchor:middle}.name{font:700 14px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#f8fafc;text-anchor:middle}.detail{font:11px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#cbd5e1;text-anchor:middle}.arrow{fill:none;stroke:#94a3b8;stroke-width:2;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1400" height="760" rx="18" fill="#020617"/><rect width="1400" height="760" rx="18" fill="url(#grid)"/>
+  <text x="48" y="48" class="title">CARE: local Compose → complete GCP architecture</text>
+  <text x="48" y="75" class="sub">Keep application flows; replace platform capabilities one layer at a time.</text>
+
+  <rect x="40" y="110" width="390" height="600" rx="16" fill="rgba(15,23,42,.7)" stroke="#22d3ee" stroke-width="2"/>
+  <text x="235" y="145" class="head">LOCAL COMPOSE</text>
+
+  <rect x="505" y="110" width="390" height="600" rx="16" fill="rgba(15,23,42,.7)" stroke="#34d399" stroke-width="2"/>
+  <text x="700" y="145" class="head">SAME CARE RESPONSIBILITIES</text>
+
+  <rect x="970" y="110" width="390" height="600" rx="16" fill="rgba(15,23,42,.7)" stroke="#fbbf24" stroke-width="2"/>
+  <text x="1165" y="145" class="head">GCP PRODUCTION PLATFORM</text>
+
+  <!-- Arrows behind boxes -->
+  <path class="arrow" d="M410 215H525"/><path class="arrow" d="M875 215H990"/>
+  <path class="arrow" d="M410 320H525"/><path class="arrow" d="M875 320H990"/>
+  <path class="arrow" d="M410 425H525"/><path class="arrow" d="M875 425H990"/>
+  <path class="arrow" d="M410 530H525"/><path class="arrow" d="M875 530H990"/>
+  <path class="arrow" d="M410 635H525"/><path class="arrow" d="M875 635H990"/>
+
+  <!-- Row 1 -->
+  <rect x="75" y="175" width="335" height="80" rx="10" fill="rgba(8,51,68,.55)" stroke="#22d3ee" stroke-width="2"/>
+  <text x="242" y="207" class="name">localhost ports</text><text x="242" y="231" class="detail">Browser → frontend → backend</text>
+  <rect x="525" y="175" width="350" height="80" rx="10" fill="rgba(6,78,59,.45)" stroke="#34d399" stroke-width="2"/>
+  <text x="700" y="207" class="name">HTTP request flow</text><text x="700" y="231" class="detail">Frontend and API remain separate roles</text>
+  <rect x="990" y="165" width="335" height="100" rx="10" fill="rgba(120,53,15,.35)" stroke="#fbbf24" stroke-width="2"/>
+  <text x="1157" y="197" class="name">DNS + HTTPS Load Balancer</text><text x="1157" y="221" class="detail">GKE Gateway + HTTPRoutes</text><text x="1157" y="243" class="detail">Kubernetes Services</text>
+
+  <!-- Row 2 -->
+  <rect x="75" y="280" width="335" height="80" rx="10" fill="rgba(6,78,59,.45)" stroke="#34d399" stroke-width="2"/>
+  <text x="242" y="312" class="name">backend + worker + beat</text><text x="242" y="336" class="detail">One shared image with plugs</text>
+  <rect x="525" y="280" width="350" height="80" rx="10" fill="rgba(6,78,59,.45)" stroke="#34d399" stroke-width="2"/>
+  <text x="700" y="312" class="name">Same runtime processes</text><text x="700" y="336" class="detail">Scale each role independently</text>
+  <rect x="990" y="280" width="335" height="80" rx="10" fill="rgba(6,78,59,.45)" stroke="#34d399" stroke-width="2"/>
+  <text x="1157" y="312" class="name">GKE Deployments + Pods</text><text x="1157" y="336" class="detail">Probes, resources, replicas, PDBs</text>
+
+  <!-- Row 3 -->
+  <rect x="75" y="385" width="335" height="80" rx="10" fill="rgba(76,29,149,.45)" stroke="#a78bfa" stroke-width="2"/>
+  <text x="242" y="417" class="name">PostgreSQL + MinIO + Redis</text><text x="242" y="441" class="detail">Local stateful dependencies</text>
+  <rect x="525" y="385" width="350" height="80" rx="10" fill="rgba(76,29,149,.45)" stroke="#a78bfa" stroke-width="2"/>
+  <text x="700" y="417" class="name">Data and queue contracts</text><text x="700" y="441" class="detail">Endpoints change; responsibilities remain</text>
+  <rect x="990" y="375" width="335" height="100" rx="10" fill="rgba(76,29,149,.45)" stroke="#a78bfa" stroke-width="2"/>
+  <text x="1157" y="407" class="name">Private Cloud SQL</text><text x="1157" y="431" class="detail">Cloud Storage buckets</text><text x="1157" y="453" class="detail">Production Redis service</text>
+
+  <!-- Row 4 -->
+  <rect x="75" y="490" width="335" height="80" rx="10" fill="rgba(136,19,55,.4)" stroke="#fb7185" stroke-width="2"/>
+  <text x="242" y="522" class="name">.env + local Docker images</text><text x="242" y="546" class="detail">Workshop configuration and builds</text>
+  <rect x="525" y="490" width="350" height="80" rx="10" fill="rgba(136,19,55,.4)" stroke="#fb7185" stroke-width="2"/>
+  <text x="700" y="522" class="name">Configuration + identity + artifact</text><text x="700" y="546" class="detail">Separate code, config, and credentials</text>
+  <rect x="990" y="480" width="335" height="100" rx="10" fill="rgba(136,19,55,.4)" stroke="#fb7185" stroke-width="2"/>
+  <text x="1157" y="512" class="name">Artifact Registry</text><text x="1157" y="536" class="detail">Workload Identity + Secret Manager</text><text x="1157" y="558" class="detail">Secrets and ConfigMaps</text>
+
+  <!-- Row 5 -->
+  <rect x="75" y="595" width="335" height="80" rx="10" fill="rgba(30,41,59,.75)" stroke="#94a3b8" stroke-width="2"/>
+  <text x="242" y="627" class="name">compose ps + logs</text><text x="242" y="651" class="detail">Single-host inspection</text>
+  <rect x="525" y="595" width="350" height="80" rx="10" fill="rgba(30,41,59,.75)" stroke="#94a3b8" stroke-width="2"/>
+  <text x="700" y="627" class="name">Health + telemetry + recovery</text><text x="700" y="651" class="detail">Evidence remains the goal</text>
+  <rect x="990" y="585" width="335" height="100" rx="10" fill="rgba(30,41,59,.75)" stroke="#94a3b8" stroke-width="2"/>
+  <text x="1157" y="617" class="name">Cloud Logging + Prometheus</text><text x="1157" y="641" class="detail">Alerts, backups, restore tests</text><text x="1157" y="663" class="detail">Runbooks and ownership</text>
+</svg>

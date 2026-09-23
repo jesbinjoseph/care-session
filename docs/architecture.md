@@ -10,12 +10,11 @@ The backend owns synchronous application logic and communicates with three local
 2. **Redis** provides caching and transports Celery tasks.
 3. **MinIO** provides local object storage for uploaded files.
 
-The backend, worker, Beat scheduler, and initialization job are built from the same CARE source and image:
+The backend, worker, and Beat scheduler are built from the same CARE source and image:
 
 - **Backend** serves HTTP API requests.
 - **Worker** consumes queued tasks from Redis.
-- **Beat** publishes scheduled tasks to Redis.
-- **Init** applies database migrations and synchronizes permissions and value sets before the long-running processes start.
+- **Beat** runs migrations, compiles messages, synchronizes permissions and value sets, marks itself healthy, and then publishes scheduled tasks to Redis.
 
 ## Plugs
 
@@ -37,8 +36,8 @@ Frontend apps can also be loaded through CARE's frontend application configurati
 ## Startup order
 
 1. PostgreSQL, Redis, and MinIO become healthy.
-2. Init applies migrations and synchronization commands.
-3. Backend, worker, and Beat start from the shared CARE image.
+2. Beat applies migrations and synchronization commands, then becomes healthy.
+3. Backend and worker start from the shared CARE image.
 4. Frontend starts after the backend is healthy.
 5. The user opens the frontend in a browser.
 

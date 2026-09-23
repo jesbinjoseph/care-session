@@ -54,27 +54,14 @@ services:
       timeout: 5s
       retries: 20
 
-  init:
-    <<: *care-backend
-    command:
-      - bash
-      - -c
-      - python manage.py migrate --noinput && python manage.py sync_permissions_roles && python manage.py sync_valueset
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: "no"
-
   backend:
     <<: *care-backend
     entrypoint: ["bash", "start.sh"]
     ports:
       - "9000:9000"
     depends_on:
-      init:
-        condition: service_completed_successfully
+      beat:
+        condition: service_healthy
       minio:
         condition: service_healthy
     healthcheck:
@@ -88,8 +75,8 @@ services:
     <<: *care-backend
     entrypoint: ["bash", "celery_worker.sh"]
     depends_on:
-      init:
-        condition: service_completed_successfully
+      beat:
+        condition: service_healthy
       redis:
         condition: service_healthy
 
@@ -97,8 +84,8 @@ services:
     <<: *care-backend
     entrypoint: ["bash", "celery_beat.sh"]
     depends_on:
-      init:
-        condition: service_completed_successfully
+      db:
+        condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:

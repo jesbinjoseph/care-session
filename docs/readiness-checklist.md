@@ -14,7 +14,7 @@ Use this checklist during the workshop. Record command output or screenshots as 
 - [ ] PostgreSQL is healthy.
 - [ ] Redis is healthy.
 - [ ] MinIO is healthy.
-- [ ] Init exited with status 0.
+- [ ] Beat completed migrations and synchronization and is healthy.
 - [ ] Backend health endpoint succeeds.
 - [ ] Frontend returns an HTTP response.
 - [ ] Worker is running.

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
   <title id="title">CARE local learning architecture</title>
-  <desc id="desc">Browser connects to frontend and backend. Backend, worker, beat and init share a CARE image with plugs. PostgreSQL, Redis and MinIO provide data services.</desc>
+  <desc id="desc">Browser connects to frontend and backend. Backend, worker and beat share a CARE image with plugs. PostgreSQL, Redis and MinIO provide data services. Beat performs startup migrations and synchronization.</desc>
   <defs>
     <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
       <path d="M40 0H0V40" fill="none" stroke="#1e293b" stroke-width="1"/>
@@ -33,7 +33,7 @@
   <path class="task" d="M650 405V485H930"/>
   <path class="task" d="M650 525V485H930"/>
   <path class="task" d="M930 485H760V405"/>
-  <path class="flow" d="M650 645V605H1050V545"/>
+
 
   <text x="230" y="190" class="label">HTTP :4000</text>
   <text x="518" y="190" class="label">API :9000</text>
@@ -55,7 +55,7 @@
   <text x="375" y="233" class="detail">localhost:4000</text>
 
   <!-- Shared image boundary -->
-  <rect x="555" y="120" width="220" height="555" rx="14" fill="rgba(6,78,59,.08)" stroke="#34d399" stroke-width="2" stroke-dasharray="8 6"/>
+  <rect x="555" y="120" width="220" height="465" rx="14" fill="rgba(6,78,59,.08)" stroke="#34d399" stroke-width="2" stroke-dasharray="8 6"/>
   <text x="575" y="147" class="sub" fill="#34d399">SHARED CARE IMAGE</text>
 
   <!-- Backend -->
@@ -80,13 +80,8 @@
   <rect x="575" y="485" width="180" height="80" rx="9" fill="#0f172a"/>
   <rect x="575" y="485" width="180" height="80" rx="9" fill="rgba(251,146,60,.3)" stroke="#fb923c" stroke-width="2"/>
   <text x="665" y="519" class="name">Celery Beat</text>
-  <text x="665" y="544" class="detail">Schedules tasks</text>
-
-  <!-- Init -->
-  <rect x="575" y="605" width="180" height="55" rx="9" fill="#0f172a"/>
-  <rect x="575" y="605" width="180" height="55" rx="9" fill="rgba(6,78,59,.35)" stroke="#34d399" stroke-width="2"/>
-  <text x="665" y="635" class="name">Init Job</text>
-  <text x="665" y="652" class="detail">Migrate + sync</text>
+  <text x="665" y="542" class="detail">Migrates + syncs</text>
+  <text x="665" y="558" class="detail">then schedules tasks</text>
 
   <!-- Database -->
   <rect x="930" y="195" width="220" height="100" rx="10" fill="#0f172a"/>

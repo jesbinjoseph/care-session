@@ -4,6 +4,14 @@ A training repository for building and running a complete CARE instance locally 
 
 ![CARE local architecture](docs/architecture.svg)
 
+## Teaching progression
+
+Start with the local diagram until participants can trace browser requests, database access, file uploads, queued tasks, scheduled tasks, and plugs. Then preserve those application flows while replacing each local platform capability with its GCP equivalent:
+
+![CARE local-to-GCP mapping](docs/local-to-gcp.svg)
+
+The detailed progression is documented in [From local Compose to GCP](docs/local-to-gcp.md).
+
 ## What runs
 
 | Service | Purpose | Source or image |
@@ -11,8 +19,7 @@ A training repository for building and running a complete CARE instance locally 
 | `frontend` | CARE browser application | Built from `ohcnetwork/care_fe` |
 | `backend` | Django API and business logic | Built from `ohcnetwork/care` |
 | `worker` | Celery asynchronous task processing | Same image as backend |
-| `beat` | Celery scheduled-task dispatch | Same image as backend |
-| `init` | Migrations, permissions, and value-set synchronization | Same image as backend; exits after success |
+| `beat` | Startup initialization and scheduled-task dispatch | Same image as backend |
 | `db` | PostgreSQL application database | `postgres:17-alpine` |
 | `redis` | Cache and Celery message broker | `redis:8-alpine` |
 | `minio` | Local S3-compatible object storage | `pgsty/silo` |
@@ -20,12 +27,13 @@ A training repository for building and running a complete CARE instance locally 
 
 ## Why the backend processes share one image
 
-The API, worker, Beat scheduler, and initialization job run the same CARE code. Compose changes only the process entry point:
+The API, worker, and Beat scheduler run the same CARE code. Compose changes only the process entry point:
 
 - API: `start.sh`
 - Worker: `celery_worker.sh`
-- Scheduler: `celery_beat.sh`
-- Initialization: Django management commands
+- Scheduler and startup initialization: `celery_beat.sh`
+
+The current CARE `celery_beat.sh` waits for PostgreSQL and Redis, runs migrations, compiles messages, synchronizes permissions and value sets, marks itself healthy, and then starts Celery Beat. There is no separate initialization container.
 
 This is the central deployment concept: one tested application artifact can run different roles.
 
@@ -75,7 +83,6 @@ Expected services:
 db
 redis
 minio
-init
 backend
 worker
 beat
@@ -88,7 +95,7 @@ frontend
 docker compose up -d --build --wait
 ```
 
-The first run takes longer because Docker downloads base images and builds both CARE repositories. The `init` service runs migrations and synchronization commands, exits successfully, and allows the application processes to start.
+The first run takes longer because Docker downloads base images and builds both CARE repositories. Beat completes migrations and synchronization before becoming healthy; the backend and worker wait for that health signal.
 
 ## 6. Verify the deployment
 
@@ -169,7 +176,7 @@ ADDITIONAL_PLUGS=[{"name":"my_plugin","package_name":"git+https://github.com/exa
 Use the exact package and configuration documented by the selected plug. Pin a release or commit; do not use a floating branch. Rebuild after changing plugs:
 
 ```bash
-docker compose build --no-cache backend worker beat init
+docker compose build --no-cache backend worker beat
 docker compose up -d --wait
 ```
 
@@ -215,7 +222,7 @@ docker compose ps -a
 docker compose logs --tail=200 <service>
 ```
 
-Check dependencies in this order: `db`, `redis`, `minio`, `init`, `backend`, `worker`, `beat`, and `frontend`.
+Check dependencies in this order: `db`, `redis`, `minio`, `beat`, `backend`, `worker`, and `frontend`.
 
 ### Rebuild after source or plug changes
 
@@ -247,6 +254,7 @@ This repository is a learning environment, not a production deployment template.
 ## Additional material
 
 - [Architecture explanation](docs/architecture.md)
+- [From local Compose to GCP](docs/local-to-gcp.md)
 - [Facilitator guide](docs/facilitator-guide.md)
 - [Deployment readiness checklist](docs/readiness-checklist.md)
 - [Interactive architecture diagram](docs/architecture.html)
